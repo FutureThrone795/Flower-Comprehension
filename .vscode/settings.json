@@ -1,0 +1,17 @@
+{
+    "files.associations": {
+        "node_network_gradient_decent.h": "c",
+        "target_image_utilities.h": "c",
+        "stb_image.h": "c",
+        "math.h": "c",
+        "cmath": "c",
+        "cstdlib": "cpp",
+        "gradient_descent_derivative_allocation.h": "c",
+        "type_traits": "c",
+        "node_network_gradient_descent.h": "c",
+        "stb_image_write.h": "c",
+        "array_multiplication.h": "c",
+        "compare_data.h": "c",
+        "calculate_nodes.h": "c"
+    }
+}
