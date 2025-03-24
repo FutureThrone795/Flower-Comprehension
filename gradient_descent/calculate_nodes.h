@@ -1,36 +1,18 @@
-double activation_function(double initial_value, int is_output_layer)
+float activation_function(float initial_value, int is_output_layer)
 {
     return tanh(initial_value);
-
-    if (is_output_layer)
-    {
-        
-    } 
-    else
-    {
-        return (initial_value > 0.0) ? initial_value : initial_value * 0.2;
-    }
 }
 
-double activation_function_derivative(double initial_value, int is_output_layer)
+float activation_function_derivative(float initial_value, int is_output_layer)
 {
-    return 1.0 - pow(tanh(initial_value), 2.0);
-
-    if (is_output_layer || 1)
-    {
-        
-    } 
-    else
-    {
-        return (initial_value > 0.0) ? 1.0 : 0.2;
-    }
+    return 1.0f - pow(tanh(initial_value), 2.0f);
 }
 
 void compute_node(struct Node_Layer *node_layer, size_t output_index, int is_output_layer)
 {
-    double value_sum = 0.0;
-    double current_weight;
-    double current_input;
+    float value_sum = 0.0f;
+    float current_weight;
+    float current_input;
 
     for (size_t input_index = 0; input_index < node_layer->input_count; input_index++)
     {
@@ -56,7 +38,7 @@ void compute_node_layer(struct Node_Layer *node_layer, int is_output_layer)
 
 void compute_node_network(struct Node_Network *node_network)
 {
-    for (size_t node_layer_index = 0; node_layer_index < node_network->node_layer_count; node_layer_index++)
+    for (uint8_t node_layer_index = 0; node_layer_index < node_network->node_layer_count; node_layer_index++)
     {
         compute_node_layer(&(node_network->node_layers[node_layer_index]), node_layer_index == (node_network->node_layer_count - 1));
     }

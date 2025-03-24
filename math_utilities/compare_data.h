@@ -1,7 +1,7 @@
 
-double calculate_data_difference_squared(double *data_1, double *data_2, size_t data_size)
+float calculate_data_difference_squared(float *data_1, float *data_2, size_t data_size)
 {
-	double data_difference = 0;
+	float data_difference = 0;
 
 	for (size_t data_index = 0; data_index < data_size; data_index++)
 	{
@@ -11,9 +11,9 @@ double calculate_data_difference_squared(double *data_1, double *data_2, size_t 
 	return data_difference;
 }
 
-double calculate_aggregate_batch_data_difference_squared(struct Node_Network *node_network, double **batch_data, size_t batch_size, size_t individual_data_size)
+float calculate_aggregate_batch_data_difference_squared(struct Node_Network *node_network, float **batch_data, size_t batch_size, size_t individual_data_size)
 {
-	double aggregate_batch_accuracy = 0.0;
+	float aggregate_batch_accuracy = 0.0f;
 
 	for (int data_index = 0; data_index < batch_size; data_index++)
 	{

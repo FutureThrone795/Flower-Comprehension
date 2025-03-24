@@ -59,16 +59,16 @@ int main(int argc, char **argv)
     const size_t IMAGE_CHANNELS = 3;
 
     const size_t IMAGE_SIZE = IMAGE_HEIGHT * IMAGE_WIDTH * IMAGE_CHANNELS; 
-    const size_t BATCH_SIZE = 3;
+    const uint8_t BATCH_SIZE = 3;
 
     #define NODE_LAYER_COUNT 6
     const size_t FIRST_NODE_LAYER_INPUT_COUNT = IMAGE_SIZE;
     size_t node_layer_output_count[NODE_LAYER_COUNT] = { 1024, 512, 128, 512, 1024, IMAGE_SIZE };
 
-    double **image_data = (double **)malloc(sizeof(double *) * BATCH_SIZE);
+    float **image_data = (float **)malloc(sizeof(float *) * BATCH_SIZE);
     for (int image_data_index = 0; image_data_index < BATCH_SIZE; image_data_index++)
     {
-        image_data[image_data_index] = (double *)malloc(sizeof(double) * IMAGE_SIZE);
+        image_data[image_data_index] = (float *)malloc(sizeof(float) * IMAGE_SIZE);
         if (image_data[image_data_index] == NULL)
         {
             printf("Failed to allocate memory for image batch data for image #%i\n", image_data_index);
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
         }
     }
 
-    double *adjoined_progress_image_data = (double *)malloc((sizeof(double) * IMAGE_SIZE * 2 * BATCH_SIZE));
+    float *adjoined_progress_image_data = (float *)malloc((sizeof(float) * IMAGE_SIZE * 2 * BATCH_SIZE));
     if (adjoined_progress_image_data == NULL)
     {
         printf("Failed to allocate memory for adjoined progress image data\n");
@@ -135,8 +135,8 @@ int main(int argc, char **argv)
 
         if (DEBUG_SHOULD_SHOW_ACCURACY_ON_GRADIENT_DESCENT_COMPLETION)
         {
-            static double prev_aggregate_batch_accuracy = 0.0;
-            double aggregate_batch_accuracy = calculate_aggregate_batch_data_difference_squared(&node_network, image_data, BATCH_SIZE, IMAGE_SIZE);
+            static float prev_aggregate_batch_accuracy = 0.0;
+            float aggregate_batch_accuracy = calculate_aggregate_batch_data_difference_squared(&node_network, image_data, BATCH_SIZE, IMAGE_SIZE);
 
             printf("Gradient Descent Step Completed, Aggregate Batch Accuracy: %f ", aggregate_batch_accuracy);
 

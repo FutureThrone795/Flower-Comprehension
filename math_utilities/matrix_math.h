@@ -1,6 +1,6 @@
-double array_dot_product_step(double* data_1, size_t step_1, double* data_2, size_t step_2, size_t data_length)
+float array_dot_product_step(float* data_1, size_t step_1, float* data_2, size_t step_2, size_t data_length)
 {
-    double dot_product_sum = 0.0;
+    float dot_product_sum = 0.0f;
 
     for (size_t data_index = 0; data_index < data_length; data_index++)
     {
@@ -10,12 +10,12 @@ double array_dot_product_step(double* data_1, size_t step_1, double* data_2, siz
     return dot_product_sum;
 }
 
-double array_dot_product(double* data_1, double* data_2, size_t data_length)
+float array_dot_product(float* data_1, float* data_2, size_t data_length)
 {
     return array_dot_product_step(data_1, 1, data_2, 1, data_length);
 }
 
-void multiply_matrices(double* output, double* data_1, size_t rows_1, size_t columns_1, double* data_2, size_t rows_2, size_t columns_2)
+void multiply_matrices(float* output, float* data_1, size_t rows_1, size_t columns_1, float* data_2, size_t rows_2, size_t columns_2)
 {
     if (columns_1 != rows_2)
     {
@@ -35,7 +35,7 @@ void multiply_matrices(double* output, double* data_1, size_t rows_1, size_t col
     }
 }
 
-void add_matrices_with_second_term_coefficient(double* output, double* data_1, size_t rows_1, size_t columns_1, double* data_2, size_t rows_2, size_t columns_2, double second_term_coefficient)
+void add_matrices_with_second_term_coefficient(float* output, float* data_1, size_t rows_1, size_t columns_1, float* data_2, size_t rows_2, size_t columns_2, float second_term_coefficient)
 {
     if (rows_1 != rows_2 || columns_1 != columns_2)
     {
@@ -53,17 +53,17 @@ void add_matrices_with_second_term_coefficient(double* output, double* data_1, s
     }
 }
 
-void add_matrices(double* output, double* data_1, size_t rows_1, size_t columns_1, double* data_2, size_t rows_2, size_t columns_2)
+void add_matrices(float* output, float* data_1, size_t rows_1, size_t columns_1, float* data_2, size_t rows_2, size_t columns_2)
 {
-    add_matrices_with_second_term_coefficient(output, data_1, rows_1, columns_1, data_2, rows_2, columns_2, 1.0);
+    add_matrices_with_second_term_coefficient(output, data_1, rows_1, columns_1, data_2, rows_2, columns_2, 1.0f);
 }
 
-void subtract_matrices(double* output, double* data_1, size_t rows_1, size_t columns_1, double* data_2, size_t rows_2, size_t columns_2)
+void subtract_matrices(float* output, float* data_1, size_t rows_1, size_t columns_1, float* data_2, size_t rows_2, size_t columns_2)
 {
-    add_matrices_with_second_term_coefficient(output, data_1, rows_1, columns_1, data_2, rows_2, columns_2, -1.0);
+    add_matrices_with_second_term_coefficient(output, data_1, rows_1, columns_1, data_2, rows_2, columns_2, -1.0f);
 }
 
-void print_matrix(double *data, size_t rows, size_t columns)
+void print_matrix(float *data, size_t rows, size_t columns)
 {
     printf("\n");
 

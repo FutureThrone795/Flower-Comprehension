@@ -1,4 +1,4 @@
-void load_random_image(double *image_data_buffer, size_t image_size)
+void load_random_image(float *image_data_buffer, size_t image_size)
 {
 	int width, height, channels;
 	char image_name[64];
@@ -19,13 +19,13 @@ void load_random_image(double *image_data_buffer, size_t image_size)
 
 	for (size_t image_data_index = 0; image_data_index < image_size; image_data_index++)
 	{
-		image_data_buffer[image_data_index] = 2.0 * (double)requested_image[image_data_index] / UINT8_MAX - 1.0;
+		image_data_buffer[image_data_index] = 2.0f * (float)requested_image[image_data_index] / UINT8_MAX - 1.0f;
 	}
 
 	stbi_image_free(requested_image);
 }
 
-void save_image(const char* name, int width, int height, int channels, double* data)
+void save_image(const char* name, size_t width, size_t height, int channels, float* data)
 {
 	size_t image_size = width * height * channels;
 
@@ -38,17 +38,17 @@ void save_image(const char* name, int width, int height, int channels, double* d
 
 	for (size_t image_data_index = 0; image_data_index < image_size; image_data_index++)
 	{
-		if (data[image_data_index] <= -1.0)
+		if (data[image_data_index] <= -1.0f)
 		{
 			modified_image[image_data_index] = 0;
 			continue;
 		}
-		if (data[image_data_index] >= 1.0)
+		if (data[image_data_index] >= 1.0f)
 		{
 			modified_image[image_data_index] = UINT8_MAX;
 			continue;
 		}
-		modified_image[image_data_index] = (uint8_t)(UINT8_MAX * (data[image_data_index] + 1.0) / 2.0);
+		modified_image[image_data_index] = (uint8_t)(UINT8_MAX * (data[image_data_index] + 1.0f) / 2.0f);
 	}
 
 	stbi_write_png(name, width, height, channels, modified_image, width * channels);
@@ -56,7 +56,7 @@ void save_image(const char* name, int width, int height, int channels, double* d
 	free(modified_image);
 }
 
-void adjoin_images(double *image_data_buffer, double *image_data_1, double*image_data_2, size_t single_image_size)
+void adjoin_images(float *image_data_buffer, float *image_data_1, float*image_data_2, size_t single_image_size)
 {
 	for (int image_data_index_1 = 0; image_data_index_1 < single_image_size; image_data_index_1++)
 	{
@@ -69,7 +69,7 @@ void adjoin_images(double *image_data_buffer, double *image_data_1, double*image
 	}
 }
 
-void add_to_adjoined_image(double *image_data_buffer, double *image_data_1, double *image_data_2, size_t single_image_width, size_t single_image_height, size_t single_image_channels, size_t start_index)
+void add_to_adjoined_image(float *image_data_buffer, float *image_data_1, float *image_data_2, size_t single_image_width, size_t single_image_height, size_t single_image_channels, size_t start_index)
 {
 	size_t single_image_size = single_image_width * single_image_height * single_image_channels;
 	size_t stride_bytes = single_image_width * single_image_channels;
@@ -107,7 +107,7 @@ void save_node_network_as_image(struct Node_Network *node_network, char *name)
 		}
 	}
 
-	double *image_data = (double *)malloc(sizeof(double) * image_width * image_height * 3);
+	float *image_data = (float *)malloc(sizeof(float) * image_width * image_height * 3);
 	if (image_data == NULL)
 	{
 		printf("Failed to allocate memory for node network visualization image\n");
@@ -116,7 +116,7 @@ void save_node_network_as_image(struct Node_Network *node_network, char *name)
 
 	for (size_t image_data_index = 0; image_data_index < image_width * image_height * 3; image_data_index++)
 	{
-		image_data[image_data_index] = -2.0;
+		image_data[image_data_index] = -2.0f;
 	}
 
 	size_t next_layer_image_start_index = 0;
