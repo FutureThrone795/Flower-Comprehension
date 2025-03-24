@@ -1,0 +1,5 @@
+node_network_data_files/*
+progress/*
+node_networks/*
+progress_image.png
+starting_image.png

@@ -12,6 +12,8 @@
         "stb_image_write.h": "c",
         "array_multiplication.h": "c",
         "compare_data.h": "c",
-        "calculate_nodes.h": "c"
+        "calculate_nodes.h": "c",
+        "matrix_math.h": "c",
+        "file_utilities.h": "c"
     }
 }

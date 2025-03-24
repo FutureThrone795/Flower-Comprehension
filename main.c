@@ -9,12 +9,14 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb/stb_image_write.h"
 
-#define DEBUG_SHOULD_SHOW_GRADIENT_BATCH_INDEX 1
+#define DEBUG_SHOULD_SHOW_GRADIENT_BATCH_INDEX 0
 #define DEBUG_SHOULD_SHOW_ACCURACY_ON_GRADIENT_DESCENT_COMPLETION 1
 #define DEBUG_SHOULD_SAVE_NODE_NETWORK_IMAGE 0
 
 #define IMAGE_SAVE_FREQUENCY 1
 #define SHOULD_PROMPT_BEFORE_DESCENT_CYCLE 0
+
+#define NODE_NETWORK_DATA_SAVE_FREQUENCY 1
 
 #ifndef _WIN32
     #if SHOULD_PROMPT_BEFORE_DESCENT_CYCLE != 0
@@ -32,11 +34,24 @@
 
 #include "gradient_descent/node_network_gradient_descent.h"
 
+#include "file_utilities/file_utilities.h"
+
 #define MAXIMUM_GRADIENT_DESCENT_CYCLES -1
 //Set to -1 for infinite cycles
 
-int main()
+int main(int argc, char **argv)
 {
+    char node_network_data_file_name[100];
+    if (argc == 1)
+    {
+        printf("File name for node network data not provided. Using default...\n");
+        sprintf(node_network_data_file_name, "node_network_data_files/default.bin");
+    }
+    else
+    {
+        sprintf_s(node_network_data_file_name, 100, "node_network_data_files/%s.bin", argv[1]);
+    }
+
     srand(time(0));
 
     const size_t IMAGE_HEIGHT = 150;
@@ -44,9 +59,10 @@ int main()
     const size_t IMAGE_CHANNELS = 3;
 
     const size_t IMAGE_SIZE = IMAGE_HEIGHT * IMAGE_WIDTH * IMAGE_CHANNELS; 
-    #define NODE_LAYER_COUNT 6
-    const size_t BATCH_SIZE = 25;
+    const size_t BATCH_SIZE = 3;
 
+    #define NODE_LAYER_COUNT 6
+    const size_t FIRST_NODE_LAYER_INPUT_COUNT = IMAGE_SIZE;
     size_t node_layer_output_count[NODE_LAYER_COUNT] = { 1024, 512, 128, 512, 1024, IMAGE_SIZE };
 
     double **image_data = (double **)malloc(sizeof(double *) * BATCH_SIZE);
@@ -68,27 +84,26 @@ int main()
     }
 
     struct Node_Network node_network;
-    initialize_node_network(&node_network, *image_data, NODE_LAYER_COUNT, IMAGE_SIZE, node_layer_output_count);
-    randomize_node_network_weights_and_biases(&node_network, 1.0, 1.0);
+    initialize_node_network(&node_network, *image_data, NODE_LAYER_COUNT, FIRST_NODE_LAYER_INPUT_COUNT, node_layer_output_count);
+
+    int does_load_from_file_fail = load_node_network_data_from_file(node_network_data_file_name, &node_network, NODE_LAYER_COUNT, FIRST_NODE_LAYER_INPUT_COUNT, node_layer_output_count);
+    if (does_load_from_file_fail)
+    {
+        randomize_node_network_weights_and_biases(&node_network, 1.0, 1.0);
+    }
 
     struct Gradient_Descent_Derivatives gradient_descent_derivatives;
     allocate_gradient_descent_derivatives(&node_network, &gradient_descent_derivatives);
 
     char name[64];
 
-    //TEMP
-    for (int image_data_index = 0; image_data_index < BATCH_SIZE; image_data_index++)
-    {
-        load_random_image(image_data[image_data_index], IMAGE_SIZE);
-    }
-    //TEMP
-
     for (int i = 0; i < MAXIMUM_GRADIENT_DESCENT_CYCLES || MAXIMUM_GRADIENT_DESCENT_CYCLES == -1; i++)
     {
-        // for (int image_data_index = 0; image_data_index < BATCH_SIZE; image_data_index++)
-        // {
-        //     load_random_image(image_data[image_data_index], IMAGE_SIZE);
-        // }
+        srand(12);
+        for (int image_data_index = 0; image_data_index < BATCH_SIZE; image_data_index++)
+        {
+            load_random_image(image_data[image_data_index], IMAGE_SIZE);
+        }
 
         if (i % IMAGE_SAVE_FREQUENCY == 0)
         {
@@ -109,6 +124,11 @@ int main()
             save_image("progress_image.png", IMAGE_WIDTH * 2, IMAGE_HEIGHT * BATCH_SIZE, IMAGE_CHANNELS, adjoined_progress_image_data);
 
             printf("Saved Progress Image\n");
+        }
+
+        if (i % NODE_NETWORK_DATA_SAVE_FREQUENCY == 0)
+        {
+            save_node_network_data_to_file(node_network_data_file_name, &node_network, NODE_LAYER_COUNT, FIRST_NODE_LAYER_INPUT_COUNT, node_layer_output_count);
         }
 
         node_network_gradient_descent(&node_network, &gradient_descent_derivatives, image_data, BATCH_SIZE);

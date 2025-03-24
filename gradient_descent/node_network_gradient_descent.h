@@ -1,10 +1,7 @@
 #include "gradient_descent_derivative.h"
 
-#define DESCENT_DERIVATIVE_BIAS_STRENGTH_FACTOR 0.03
-#define DESCENT_DERIVATIVE_WEIGHT_STRENGTH_FACTOR 0.03
-
-#define SHOULD_NORMALIZE_NODE_LAYER_BIAS_STEP_SIZE 0
-#define SHOULD_NORMALIZE_NODE_LAYER_WEIGHT_STEP_SIZE 0
+#define DESCENT_DERIVATIVE_BIAS_STRENGTH_FACTOR 0.01
+#define DESCENT_DERIVATIVE_WEIGHT_STRENGTH_FACTOR 0.01
 
 #define SHOULD_DIVIDE_NODE_LAYER_BY_DEPTH 1
 
@@ -86,53 +83,19 @@ void node_network_gradient_descent(struct Node_Network *node_network, struct Gra
     for (size_t node_layer_index = 0; node_layer_index < node_network->node_layer_count; node_layer_index++)
     {
         struct Node_Layer *node_layer = &(node_network->node_layers[node_layer_index]);
-        double layer_activation_bias_divisor = 1.0;
-        double layer_weights_divisor = 1.0;
-
-        if (SHOULD_NORMALIZE_NODE_LAYER_BIAS_STEP_SIZE || SHOULD_NORMALIZE_NODE_LAYER_WEIGHT_STEP_SIZE)
-        {
-            for (size_t pre_apply_output_index = 0; pre_apply_output_index < node_layer->output_count; pre_apply_output_index++)
-            {
-                if (SHOULD_NORMALIZE_NODE_LAYER_BIAS_STEP_SIZE)
-                {
-                    double abs_activation_bias_value = fabs(activation_bias_derivatives[node_layer_index][pre_apply_output_index]);
-                    if (layer_activation_bias_divisor < abs_activation_bias_value)
-                    {
-                        layer_activation_bias_divisor = abs_activation_bias_value;
-                    }
-                }
-
-                if (SHOULD_NORMALIZE_NODE_LAYER_WEIGHT_STEP_SIZE)
-                {
-                    for (size_t pre_apply_input_index = 0; pre_apply_input_index < node_layer->input_count; pre_apply_input_index++)
-                    {
-                        size_t weight_index = (pre_apply_output_index * node_layer->input_count) + pre_apply_input_index;
-
-                        double abs_weight_value = fabs(input_weight_derivatives[node_layer_index][weight_index]);
-                        if (layer_weights_divisor < abs_weight_value)
-                        {
-                            layer_weights_divisor = abs_weight_value;
-                        }
-                    }
-                }
-            }
-            
-            if (layer_activation_bias_divisor == 0.0)
-            {
-                layer_activation_bias_divisor = 1.0;
-            }
-            if (layer_weights_divisor == 0.0)
-            {
-                layer_weights_divisor = 1.0;
-            }
-        }
+        double layer_activation_bias_factor = 1.0;
+        double layer_weights_factor = 1.0;
 
         if (SHOULD_DIVIDE_NODE_LAYER_BY_DEPTH)
         {
-            layer_activation_bias_divisor *= (node_layer_index + 1);
-            layer_weights_divisor *= (node_layer_index + 1);
+            layer_activation_bias_factor /= node_layer_index + 1;
+            layer_weights_factor /= node_layer_index + 1;
         }
 
+        add_matrices_with_second_term_coefficient(node_layer->activation_biases, node_layer->activation_biases, 1, node_layer->output_count, activation_bias_derivatives[node_layer_index], 1, node_layer->output_count, -1.0 * layer_activation_bias_factor * DESCENT_DERIVATIVE_BIAS_STRENGTH_FACTOR);
+        add_matrices_with_second_term_coefficient(node_layer->input_weights, node_layer->input_weights, node_layer->input_count, node_layer->output_count, input_weight_derivatives[node_layer_index], node_layer->input_count, node_layer->output_count, -1.0 * layer_weights_factor * DESCENT_DERIVATIVE_WEIGHT_STRENGTH_FACTOR);
+
+        /*
         for (size_t output_index = 0; output_index < node_layer->output_count; output_index++)
         {
             node_layer->activation_biases[output_index] -= (activation_bias_derivatives[node_layer_index][output_index] / layer_activation_bias_divisor) * DESCENT_DERIVATIVE_BIAS_STRENGTH_FACTOR;
@@ -144,5 +107,6 @@ void node_network_gradient_descent(struct Node_Network *node_network, struct Gra
                 node_layer->input_weights[weight_index] -= (input_weight_derivatives[node_layer_index][weight_index] / layer_weights_divisor) * DESCENT_DERIVATIVE_WEIGHT_STRENGTH_FACTOR;
             }
         }
+        */
     }
 }
