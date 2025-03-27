@@ -26,13 +26,16 @@
 
 #include "node/node_layer.h"
 #include "node/node_network.h"
-#include "node/target_image_utilities.h"
+#include "node/calculate_nodes_data_partition.h"
 
-#include "gradient_descent/calculate_nodes.h"
+#include "node/target_image_utilities.h"
+#include "node/calculate_nodes.h"
+
 #include "math_utilities/compare_data.h"
 #include "math_utilities/matrix_math.h"
 
 #include "gradient_descent/node_network_gradient_descent.h"
+#include "gradient_descent/gradient_descent_debug.h"
 
 #include "file_utilities/file_utilities.h"
 
@@ -59,7 +62,7 @@ int main(int argc, char **argv)
     const size_t IMAGE_CHANNELS = 3;
 
     const size_t IMAGE_SIZE = IMAGE_HEIGHT * IMAGE_WIDTH * IMAGE_CHANNELS; 
-    const uint8_t BATCH_SIZE = 3;
+    const uint8_t BATCH_SIZE = 25;
 
     #define NODE_LAYER_COUNT 6
     const size_t FIRST_NODE_LAYER_INPUT_COUNT = IMAGE_SIZE;
@@ -95,38 +98,22 @@ int main(int argc, char **argv)
     struct Gradient_Descent_Derivatives gradient_descent_derivatives;
     allocate_gradient_descent_derivatives(&node_network, &gradient_descent_derivatives);
 
-    char name[64];
+    struct Node_Network_Data_Partition node_network_data_partition;
+    allocate_node_network_data_partition(&node_network, &node_network_data_partition, 1);
 
-    for (int i = 0; i < MAXIMUM_GRADIENT_DESCENT_CYCLES || MAXIMUM_GRADIENT_DESCENT_CYCLES == -1; i++)
+    for (int cycle_index = 0; cycle_index < MAXIMUM_GRADIENT_DESCENT_CYCLES || MAXIMUM_GRADIENT_DESCENT_CYCLES == -1; cycle_index++)
     {
-        srand(12);
         for (int image_data_index = 0; image_data_index < BATCH_SIZE; image_data_index++)
         {
             load_random_image(image_data[image_data_index], IMAGE_SIZE);
         }
 
-        if (i % IMAGE_SAVE_FREQUENCY == 0)
+        if (cycle_index % IMAGE_SAVE_FREQUENCY == 0)
         {
-            for (int image_data_index = 0; image_data_index < BATCH_SIZE; image_data_index++)
-            {
-                node_network.node_layers[0].inputs = image_data[image_data_index];
-                compute_node_network(&node_network);
-                add_to_adjoined_image(adjoined_progress_image_data, image_data[image_data_index], node_network.node_layers[node_network.node_layer_count - 1].outputs, IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS, image_data_index * IMAGE_WIDTH * IMAGE_HEIGHT * IMAGE_CHANNELS * 2);
-                sprintf_s(name, 64, "node_networks/node_network_image_%i.png", image_data_index);
-                if (DEBUG_SHOULD_SAVE_NODE_NETWORK_IMAGE)
-                {
-                    save_node_network_as_image(&node_network, name);
-                }
-            }
-
-            sprintf_s(name, 60, "progress/progress_image_%i.png", i);
-            save_image(name, IMAGE_WIDTH * 2, IMAGE_HEIGHT * BATCH_SIZE, IMAGE_CHANNELS, adjoined_progress_image_data);
-            save_image("progress_image.png", IMAGE_WIDTH * 2, IMAGE_HEIGHT * BATCH_SIZE, IMAGE_CHANNELS, adjoined_progress_image_data);
-
-            printf("Saved Progress Image\n");
+            save_progress_image(adjoined_progress_image_data, &node_network, image_data, BATCH_SIZE, IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS, cycle_index);
         }
 
-        if (i % NODE_NETWORK_DATA_SAVE_FREQUENCY == 0)
+        if (cycle_index % NODE_NETWORK_DATA_SAVE_FREQUENCY == 0)
         {
             save_node_network_data_to_file(node_network_data_file_name, &node_network, NODE_LAYER_COUNT, FIRST_NODE_LAYER_INPUT_COUNT, node_layer_output_count);
         }
@@ -135,26 +122,7 @@ int main(int argc, char **argv)
 
         if (DEBUG_SHOULD_SHOW_ACCURACY_ON_GRADIENT_DESCENT_COMPLETION)
         {
-            static float prev_aggregate_batch_accuracy = 0.0;
-            float aggregate_batch_accuracy = calculate_aggregate_batch_data_difference_squared(&node_network, image_data, BATCH_SIZE, IMAGE_SIZE);
-
-            printf("Gradient Descent Step Completed, Aggregate Batch Accuracy: %f ", aggregate_batch_accuracy);
-
-            if (prev_aggregate_batch_accuracy != 0.0)
-            {
-                if (aggregate_batch_accuracy > prev_aggregate_batch_accuracy)
-                {
-                    printf("(+)");
-                }
-                else
-                {
-                    printf("(-)");
-                }
-            }
-
-            printf("\n");
-
-            prev_aggregate_batch_accuracy = aggregate_batch_accuracy;
+            print_aggregate_batch_accuracy(&node_network, image_data, BATCH_SIZE, IMAGE_SIZE);
         }
 
         if (SHOULD_PROMPT_BEFORE_DESCENT_CYCLE)

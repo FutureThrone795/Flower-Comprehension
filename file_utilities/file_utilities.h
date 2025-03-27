@@ -172,8 +172,6 @@ void save_node_network_data_to_file(const char *file_name, struct Node_Network *
     FILE *file_pointer;
     file_pointer = fopen(file_name, "wb");
 
-    write_file_header(file_pointer, VERSION, node_layer_count, first_node_layer_input_count, node_layer_output_counts);
-
     size_t node_network_data_float_count = calculate_node_network_data_float_count(node_layer_count, first_node_layer_input_count, node_layer_output_counts);
     float *file_node_network_data_buffer = (float *)malloc(sizeof(float) * node_network_data_float_count);
     if (file_node_network_data_buffer == NULL)
@@ -182,6 +180,8 @@ void save_node_network_data_to_file(const char *file_name, struct Node_Network *
         fclose(file_pointer);
         exit(EXIT_FAILURE);
     }
+
+    write_file_header(file_pointer, VERSION, node_layer_count, first_node_layer_input_count, node_layer_output_counts);
     
     size_t buffer_cursor = 0;
     for (uint8_t node_layer_index = 0; node_layer_index < node_layer_count; node_layer_index++)
@@ -204,6 +204,6 @@ void save_node_network_data_to_file(const char *file_name, struct Node_Network *
     fwrite(file_node_network_data_buffer, sizeof(float), node_network_data_float_count, file_pointer);
 
     printf("Saved node network data to %s\n", file_name);
-
+    free(file_node_network_data_buffer);
     fclose(file_pointer);
 }

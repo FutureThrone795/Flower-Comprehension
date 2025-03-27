@@ -3,11 +3,11 @@ struct Node_Layer
     size_t input_count;
     size_t output_count;
 
-    float *inputs;
+    float *inputs; //TO REMOVE
     float *input_weights;
     float *activation_biases;
-    float *raw_linear_outputs;
-    float *outputs;
+    float *raw_linear_outputs; //TO REMOVE
+    float *outputs; //TO REMOVE
 };
 
 void initialize_node_layer(struct Node_Layer *node_layer, size_t input_count, size_t output_count)
