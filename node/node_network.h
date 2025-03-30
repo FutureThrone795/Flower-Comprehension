@@ -22,12 +22,10 @@ void initialize_node_network(struct Node_Network *node_network, float* input, ui
     }
 
     initialize_node_layer(&(node_network->node_layers[0]), first_node_layer_input_count, node_layer_output_counts[0]);
-    node_network->node_layers[0].inputs = input;
 
     for (uint8_t node_layer_index = 1; node_layer_index < node_layer_count; node_layer_index++)
     {
         initialize_node_layer(&(node_network->node_layers[node_layer_index]), node_layer_output_counts[node_layer_index - 1], node_layer_output_counts[node_layer_index]);
-        node_network->node_layers[node_layer_index].inputs = node_network->node_layers[node_layer_index - 1].outputs;
     }
 }
 

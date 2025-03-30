@@ -15,19 +15,33 @@ float array_dot_product(float* data_1, float* data_2, size_t data_length)
     return array_dot_product_step(data_1, 1, data_2, 1, data_length);
 }
 
+void apply_activation_function_to_matrix(float* output, float* data, size_t rows, size_t columns, float(*func)(float, uint8_t), uint8_t is_output_layer)
+{
+    for (size_t output_row_index = 0; output_row_index < rows; output_row_index++)
+    {
+        for (size_t output_column_index = 0; output_column_index < columns; output_column_index++)
+        {
+            size_t output_index = (output_row_index * columns) + output_column_index;
+            float dat2 = data[output_index];
+            float dat = func(dat2, is_output_layer);
+            output[output_index] = dat;
+        }
+    }
+}
+
 void multiply_matrices(float* output, float* data_1, size_t rows_1, size_t columns_1, float* data_2, size_t rows_2, size_t columns_2)
 {
     if (columns_1 != rows_2)
     {
         printf("Attempted to multiply matrices that do not conform for matrix multiplication.\n");
-        printf("Matrix 1: %llux%llu", rows_1, columns_1);
-        printf("Matrix 2: %llux%llu", rows_2, columns_2);
+        printf("Matrix 1: %llux%llu\n", rows_1, columns_1);
+        printf("Matrix 2: %llux%llu\n", rows_2, columns_2);
         exit(EXIT_FAILURE);
     }
 
-    for (size_t output_row_index = 0; output_row_index < columns_2; output_row_index++)
+    for (size_t output_row_index = 0; output_row_index < rows_1; output_row_index++)
     {
-        for (size_t output_column_index = 0; output_column_index < rows_1; output_column_index++)
+        for (size_t output_column_index = 0; output_column_index < columns_2; output_column_index++)
         {
             size_t output_index = (output_row_index * columns_2) + output_column_index;
             output[output_index] = array_dot_product_step(&(data_1[output_row_index * columns_1]), 1, &(data_2[output_column_index]), columns_2, rows_2);
@@ -58,6 +72,11 @@ void add_matrices(float* output, float* data_1, size_t rows_1, size_t columns_1,
     add_matrices_with_second_term_coefficient(output, data_1, rows_1, columns_1, data_2, rows_2, columns_2, 1.0f);
 }
 
+void add_to_matrix_with_second_term_coefficient(float* output, float* data, size_t rows, size_t columns, float second_term_coefficient)
+{
+    add_matrices_with_second_term_coefficient(output, output, rows, columns, data, rows, columns, second_term_coefficient);
+}
+
 void subtract_matrices(float* output, float* data_1, size_t rows_1, size_t columns_1, float* data_2, size_t rows_2, size_t columns_2)
 {
     add_matrices_with_second_term_coefficient(output, data_1, rows_1, columns_1, data_2, rows_2, columns_2, -1.0f);
@@ -75,7 +94,7 @@ void print_matrix(float *data, size_t rows, size_t columns)
         {
             size_t data_index = column_index + row_index * columns;
 
-            printf("%.2f", data[data_index]);
+            printf("%f", data[data_index]);
 
             if (column_index < columns - 1)
             {
@@ -94,4 +113,16 @@ void print_matrix(float *data, size_t rows, size_t columns)
     }
 
     printf("\n");
+}
+
+void debug_matrix(float *data, size_t rows, size_t columns)
+{
+    for(size_t i = 0; i < rows*columns; i++) 
+    { 
+        if (_isnanf(data[i]))
+        {
+            print_matrix(data, rows, columns);
+            return;
+        }
+    }
 }

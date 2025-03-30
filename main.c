@@ -3,13 +3,33 @@
 #include "time.h"
 #define _USE_MATH_DEFINES
 #include "math.h"
+#include "pthread.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb/stb_image_write.h"
 
-#define DEBUG_SHOULD_SHOW_GRADIENT_BATCH_INDEX 0
+#include "math_utilities/matrix_math.h"
+
+#include "node/node_layer.h"
+#include "node/node_network.h"
+#include "node/calculate_nodes_data_partition.h"
+
+#include "node/target_image_utilities.h"
+#include "node/calculate_nodes.h"
+
+#include "math_utilities/compare_data.h"
+
+#define DEBUG_SHOULD_SHOW_GRADIENT_BATCH_INDEX 1
+#define THREAD_COUNT 16
+
+#include "gradient_descent/node_network_gradient_descent.h"
+#include "gradient_descent/gradient_descent_handler.h"
+#include "gradient_descent/gradient_descent_debug.h"
+
+#include "file_utilities/file_utilities.h"
+
 #define DEBUG_SHOULD_SHOW_ACCURACY_ON_GRADIENT_DESCENT_COMPLETION 1
 #define DEBUG_SHOULD_SAVE_NODE_NETWORK_IMAGE 0
 
@@ -24,23 +44,11 @@
     #endif
 #endif
 
-#include "node/node_layer.h"
-#include "node/node_network.h"
-#include "node/calculate_nodes_data_partition.h"
-
-#include "node/target_image_utilities.h"
-#include "node/calculate_nodes.h"
-
-#include "math_utilities/compare_data.h"
-#include "math_utilities/matrix_math.h"
-
-#include "gradient_descent/node_network_gradient_descent.h"
-#include "gradient_descent/gradient_descent_debug.h"
-
-#include "file_utilities/file_utilities.h"
-
 #define MAXIMUM_GRADIENT_DESCENT_CYCLES -1
 //Set to -1 for infinite cycles
+
+#define BATCH_SIZE 25
+#define NODE_LAYER_COUNT 6
 
 int main(int argc, char **argv)
 {
@@ -62,9 +70,7 @@ int main(int argc, char **argv)
     const size_t IMAGE_CHANNELS = 3;
 
     const size_t IMAGE_SIZE = IMAGE_HEIGHT * IMAGE_WIDTH * IMAGE_CHANNELS; 
-    const uint8_t BATCH_SIZE = 25;
 
-    #define NODE_LAYER_COUNT 6
     const size_t FIRST_NODE_LAYER_INPUT_COUNT = IMAGE_SIZE;
     size_t node_layer_output_count[NODE_LAYER_COUNT] = { 1024, 512, 128, 512, 1024, IMAGE_SIZE };
 
@@ -95,14 +101,17 @@ int main(int argc, char **argv)
         randomize_node_network_weights_and_biases(&node_network, 1.0, 1.0);
     }
 
-    struct Gradient_Descent_Derivatives gradient_descent_derivatives;
-    allocate_gradient_descent_derivatives(&node_network, &gradient_descent_derivatives);
+    struct Gradient_Descent_Derivatives *gradient_descent_derivatives;
+    struct Node_Network_Data_Partition *node_network_data_partition;
+    allocate_and_initialize_gradient_descent_values(&node_network, &gradient_descent_derivatives, &node_network_data_partition);
 
-    struct Node_Network_Data_Partition node_network_data_partition;
-    allocate_node_network_data_partition(&node_network, &node_network_data_partition, 1);
+    struct Node_Network_Data_Partition misc_node_network_data_partition; //For calculating differences, saving images, etc. 
+    allocate_node_network_data_partition(&node_network, &misc_node_network_data_partition, 0); //Does not support gradient descent
+    initialize_node_network_data_partition(&node_network, &misc_node_network_data_partition);
 
     for (int cycle_index = 0; cycle_index < MAXIMUM_GRADIENT_DESCENT_CYCLES || MAXIMUM_GRADIENT_DESCENT_CYCLES == -1; cycle_index++)
     {
+        srand(280);
         for (int image_data_index = 0; image_data_index < BATCH_SIZE; image_data_index++)
         {
             load_random_image(image_data[image_data_index], IMAGE_SIZE);
@@ -110,7 +119,7 @@ int main(int argc, char **argv)
 
         if (cycle_index % IMAGE_SAVE_FREQUENCY == 0)
         {
-            save_progress_image(adjoined_progress_image_data, &node_network, image_data, BATCH_SIZE, IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS, cycle_index);
+            save_progress_image(adjoined_progress_image_data, &node_network, &misc_node_network_data_partition, image_data, BATCH_SIZE, IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS, cycle_index);
         }
 
         if (cycle_index % NODE_NETWORK_DATA_SAVE_FREQUENCY == 0)
@@ -118,11 +127,12 @@ int main(int argc, char **argv)
             save_node_network_data_to_file(node_network_data_file_name, &node_network, NODE_LAYER_COUNT, FIRST_NODE_LAYER_INPUT_COUNT, node_layer_output_count);
         }
 
-        node_network_gradient_descent(&node_network, &gradient_descent_derivatives, image_data, BATCH_SIZE);
+        printf("Gradient descent started\n");
+        gradient_descent_cycle(&node_network, gradient_descent_derivatives, node_network_data_partition, image_data, BATCH_SIZE);
 
         if (DEBUG_SHOULD_SHOW_ACCURACY_ON_GRADIENT_DESCENT_COMPLETION)
         {
-            print_aggregate_batch_accuracy(&node_network, image_data, BATCH_SIZE, IMAGE_SIZE);
+            print_aggregate_batch_accuracy(&node_network, &misc_node_network_data_partition, image_data, BATCH_SIZE, IMAGE_SIZE);
         }
 
         if (SHOULD_PROMPT_BEFORE_DESCENT_CYCLE)
@@ -131,10 +141,8 @@ int main(int argc, char **argv)
         }
     }
 
-    compute_node_network(&node_network);
-    save_image("final_image.png", 150, 150, 3, node_network.node_layers[node_network.node_layer_count - 1].outputs);
+    deallocate_gradient_descent_derivatives(&node_network, gradient_descent_derivatives);
 
-    deallocate_gradient_descent_derivatives(&node_network, &gradient_descent_derivatives);
-
+    pthread_exit(NULL);
     return 0;
 }

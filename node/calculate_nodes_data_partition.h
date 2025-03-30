@@ -23,6 +23,14 @@ struct Node_Network_Data_Partition
     struct Node_Layer_Data_Partition *node_layer_data_partitions;
 };
 
+void initialize_node_network_data_partition(struct Node_Network *node_network, struct Node_Network_Data_Partition *node_network_data_partition)
+{
+    for (uint8_t node_layer_index = 1; node_layer_index < node_network->node_layer_count; node_layer_index++)
+    {
+        node_network_data_partition->node_layer_data_partitions[node_layer_index].inputs = node_network_data_partition->node_layer_data_partitions[node_layer_index - 1].outputs;
+    }
+}
+
 void allocate_node_layer_data_partition(struct Node_Layer_Data_Partition *node_layer_data_partition, size_t output_count, uint8_t should_allocate_for_gradient_descent)
 {
     node_layer_data_partition->is_allocated_for_gradient_descent = should_allocate_for_gradient_descent;

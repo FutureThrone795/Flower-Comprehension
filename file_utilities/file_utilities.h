@@ -5,7 +5,7 @@ MAIN HEADER
 |- char[] "FutureThrone795 Node_Network Data File"
 |- size_t version
 |- char[] "https://github.com/FutureThrone795"
-|- size_t node_layer_count
+|- uint8_t node_layer_count
 |- size_t first_node_layer_input_count
 |- size_t[node_layer_count] node_layer_output_counts
 |- char[] "End Header"

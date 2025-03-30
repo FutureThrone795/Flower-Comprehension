@@ -3,11 +3,8 @@ struct Node_Layer
     size_t input_count;
     size_t output_count;
 
-    float *inputs; //TO REMOVE
     float *input_weights;
     float *activation_biases;
-    float *raw_linear_outputs; //TO REMOVE
-    float *outputs; //TO REMOVE
 };
 
 void initialize_node_layer(struct Node_Layer *node_layer, size_t input_count, size_t output_count)
@@ -26,20 +23,6 @@ void initialize_node_layer(struct Node_Layer *node_layer, size_t input_count, si
     if (node_layer->activation_biases == NULL)
     {
         printf("Failed to allocate memory for node layer activation biases");
-        exit(EXIT_FAILURE);
-    }
-
-    node_layer->raw_linear_outputs = (float *)malloc(sizeof(float) * output_count);
-    if (node_layer->raw_linear_outputs == NULL)
-    {
-        printf("Failed to allocate memory for node layer raw linear outputs");
-        exit(EXIT_FAILURE);
-    }
-
-    node_layer->outputs = (float *)malloc(sizeof(float) * output_count);
-    if (node_layer->input_weights == NULL)
-    {
-        printf("Failed to allocate memory for node layer output");
         exit(EXIT_FAILURE);
     }
 }

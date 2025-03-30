@@ -89,6 +89,7 @@ void add_to_adjoined_image(float *image_data_buffer, float *image_data_1, float 
 	}
 }
 
+/*
 void save_node_network_as_image(struct Node_Network *node_network, char *name)
 {
 	size_t image_width = (size_t)ceil(sqrt(node_network->node_layers[0].input_count / 3));
@@ -143,3 +144,4 @@ void save_node_network_as_image(struct Node_Network *node_network, char *name)
 
 	save_image(name, image_width, image_height, 3, image_data);
 }
+*/
