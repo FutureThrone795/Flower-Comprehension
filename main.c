@@ -95,9 +95,11 @@ int main(int argc, char **argv)
     struct Node_Network node_network;
     initialize_node_network(&node_network, *image_data, NODE_LAYER_COUNT, FIRST_NODE_LAYER_INPUT_COUNT, node_layer_output_count);
 
-    int does_load_from_file_fail = load_node_network_data_from_file(node_network_data_file_name, &node_network, NODE_LAYER_COUNT, FIRST_NODE_LAYER_INPUT_COUNT, node_layer_output_count);
+    size_t cycle_index;
+    int does_load_from_file_fail = load_node_network_data_from_file(node_network_data_file_name, &node_network, &cycle_index, NODE_LAYER_COUNT, FIRST_NODE_LAYER_INPUT_COUNT, node_layer_output_count);
     if (does_load_from_file_fail)
     {
+        cycle_index = 0;
         randomize_node_network_weights_and_biases(&node_network, 1.0, 1.0);
     }
 
@@ -109,9 +111,8 @@ int main(int argc, char **argv)
     allocate_node_network_data_partition(&node_network, &misc_node_network_data_partition, 0); //Does not support gradient descent
     initialize_node_network_data_partition(&node_network, &misc_node_network_data_partition);
 
-    for (int cycle_index = 0; cycle_index < MAXIMUM_GRADIENT_DESCENT_CYCLES || MAXIMUM_GRADIENT_DESCENT_CYCLES == -1; cycle_index++)
+    for (; cycle_index < MAXIMUM_GRADIENT_DESCENT_CYCLES || MAXIMUM_GRADIENT_DESCENT_CYCLES == -1; cycle_index++)
     {
-        srand(280);
         for (int image_data_index = 0; image_data_index < BATCH_SIZE; image_data_index++)
         {
             load_random_image(image_data[image_data_index], IMAGE_SIZE);
@@ -124,11 +125,12 @@ int main(int argc, char **argv)
 
         if (cycle_index % NODE_NETWORK_DATA_SAVE_FREQUENCY == 0)
         {
-            save_node_network_data_to_file(node_network_data_file_name, &node_network, NODE_LAYER_COUNT, FIRST_NODE_LAYER_INPUT_COUNT, node_layer_output_count);
+            save_node_network_data_to_file(node_network_data_file_name, &node_network, cycle_index, NODE_LAYER_COUNT, FIRST_NODE_LAYER_INPUT_COUNT, node_layer_output_count);
         }
 
-        printf("Gradient descent started\n");
+        printf("Gradient descent cycle index %llu started\n", cycle_index);
         gradient_descent_cycle(&node_network, gradient_descent_derivatives, node_network_data_partition, image_data, BATCH_SIZE);
+        printf("Gradient descent cycle index %llu completed\n", cycle_index);
 
         if (DEBUG_SHOULD_SHOW_ACCURACY_ON_GRADIENT_DESCENT_COMPLETION)
         {

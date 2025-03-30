@@ -4,6 +4,7 @@
 MAIN HEADER 
 |- char[] "FutureThrone795 Node_Network Data File"
 |- size_t version
+|- size_t cycle_index
 |- char[] "https://github.com/FutureThrone795"
 |- uint8_t node_layer_count
 |- size_t first_node_layer_input_count
@@ -27,7 +28,7 @@ const char file_description[] = "FutureThrone795 Node_Network Data File";
 const char github_link[] = "https://github.com/FutureThrone795";
 const char end_header[] = "End Header";
 
-#define VERSION 2
+#define VERSION 3
 
 size_t calculate_node_network_data_float_count(uint8_t node_layer_count, size_t first_node_layer_input_count, size_t *node_layer_output_counts)
 {
@@ -45,11 +46,12 @@ size_t calculate_node_network_data_float_count(uint8_t node_layer_count, size_t 
     return float_count;
 }
 
-void seek_and_read_file_header_also_allocate_node_layer_input_counts_and_brew_me_coffee(FILE *file_pointer, size_t *version_dest, uint8_t *node_layer_count_dest, size_t *first_node_layer_input_count_dest, size_t **node_layer_output_counts_dest)
+void seek_and_read_file_header_also_allocate_node_layer_input_counts_and_brew_me_coffee(FILE *file_pointer, size_t *version_dest, size_t *cycle_index_dest, uint8_t *node_layer_count_dest, size_t *first_node_layer_input_count_dest, size_t **node_layer_output_counts_dest)
 {
     fseeko(file_pointer, sizeof(file_description), SEEK_CUR);
 
     fread(version_dest, sizeof(size_t), 1, file_pointer);
+    fread(cycle_index_dest, sizeof(size_t), 1, file_pointer);
 
     fseeko(file_pointer, sizeof(github_link), SEEK_CUR);
 
@@ -69,11 +71,12 @@ void seek_and_read_file_header_also_allocate_node_layer_input_counts_and_brew_me
     fseeko(file_pointer, sizeof(end_header), SEEK_CUR);
 }
 
-void write_file_header(FILE *file_pointer, size_t version, uint8_t node_layer_count, size_t first_node_layer_input_count, size_t *node_layer_output_counts)
+void write_file_header(FILE *file_pointer, size_t version, size_t cycle_index, uint8_t node_layer_count, size_t first_node_layer_input_count, size_t *node_layer_output_counts)
 {
     fwrite(file_description, sizeof(file_description), 1, file_pointer);
 
     fwrite(&version, sizeof(size_t), 1, file_pointer);
+    fwrite(&cycle_index, sizeof(size_t), 1, file_pointer);
 
     fwrite(github_link, sizeof(github_link), 1, file_pointer);
 
@@ -84,7 +87,7 @@ void write_file_header(FILE *file_pointer, size_t version, uint8_t node_layer_co
     fwrite(end_header, sizeof(end_header), 1, file_pointer);
 }
 
-int load_node_network_data_from_file(const char *file_name, struct Node_Network *node_network, uint8_t node_layer_count, size_t first_node_layer_input_count, size_t *node_layer_output_counts)
+int load_node_network_data_from_file(const char *file_name, struct Node_Network *node_network, size_t *cycle_index, uint8_t node_layer_count, size_t first_node_layer_input_count, size_t *node_layer_output_counts)
 {
     FILE *file_pointer;
     file_pointer = fopen(file_name, "rb");
@@ -98,10 +101,18 @@ int load_node_network_data_from_file(const char *file_name, struct Node_Network 
     size_t file_version, file_first_node_layer_input_count;
     size_t *file_node_layer_output_counts = 0;
 
-    seek_and_read_file_header_also_allocate_node_layer_input_counts_and_brew_me_coffee(file_pointer, &file_version, &file_node_layer_count, &file_first_node_layer_input_count, &file_node_layer_output_counts);
+    seek_and_read_file_header_also_allocate_node_layer_input_counts_and_brew_me_coffee(file_pointer, &file_version, cycle_index, &file_node_layer_count, &file_first_node_layer_input_count, &file_node_layer_output_counts);
     printf("Loaded header data from %s:\nVersion: %llu, Node layer count: %llu\n", file_name, file_version, file_node_layer_count);
 
-    if (file_node_layer_count != node_layer_count || file_first_node_layer_input_count != first_node_layer_input_count || file_version != VERSION)
+    if (file_version != VERSION)
+    {
+        printf("Node network data file is from a deprecated version\n");
+        printf("Current version: %i\n", VERSION);
+        fclose(file_pointer);
+        exit(EXIT_FAILURE);
+    }
+
+    if (file_node_layer_count != node_layer_count || file_first_node_layer_input_count != first_node_layer_input_count)
     {
         printf("Node network from file and destination node network do not conform\n");
         fclose(file_pointer);
@@ -167,7 +178,7 @@ int load_node_network_data_from_file(const char *file_name, struct Node_Network 
     return 0;
 }
 
-void save_node_network_data_to_file(const char *file_name, struct Node_Network *node_network, uint8_t node_layer_count, size_t first_node_layer_input_count, size_t *node_layer_output_counts)
+void save_node_network_data_to_file(const char *file_name, struct Node_Network *node_network, size_t cycle_index, uint8_t node_layer_count, size_t first_node_layer_input_count, size_t *node_layer_output_counts)
 {
     FILE *file_pointer;
     file_pointer = fopen(file_name, "wb");
@@ -181,7 +192,7 @@ void save_node_network_data_to_file(const char *file_name, struct Node_Network *
         exit(EXIT_FAILURE);
     }
 
-    write_file_header(file_pointer, VERSION, node_layer_count, first_node_layer_input_count, node_layer_output_counts);
+    write_file_header(file_pointer, VERSION, cycle_index, node_layer_count, first_node_layer_input_count, node_layer_output_counts);
     
     size_t buffer_cursor = 0;
     for (uint8_t node_layer_index = 0; node_layer_index < node_layer_count; node_layer_index++)
