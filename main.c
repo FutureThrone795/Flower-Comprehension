@@ -33,7 +33,7 @@
 #define DEBUG_SHOULD_SHOW_ACCURACY_ON_GRADIENT_DESCENT_COMPLETION 1
 #define DEBUG_SHOULD_SAVE_NODE_NETWORK_IMAGE 0
 
-#define IMAGE_SAVE_FREQUENCY 1
+#define IMAGE_SAVE_FREQUENCY 5
 #define SHOULD_PROMPT_BEFORE_DESCENT_CYCLE 0
 
 #define NODE_NETWORK_DATA_SAVE_FREQUENCY 1
@@ -53,14 +53,17 @@
 int main(int argc, char **argv)
 {
     char node_network_data_file_name[100];
+    char aggregate_batch_accuracy_tracking_file_name[100];
     if (argc == 1)
     {
         printf("File name for node network data not provided. Using default...\n");
         sprintf(node_network_data_file_name, "node_network_data_files/default.bin");
+        sprintf(aggregate_batch_accuracy_tracking_file_name, "aggregate_batch_accuracy_tracking_files/default.txt");
     }
     else
     {
         sprintf_s(node_network_data_file_name, 100, "node_network_data_files/%s.bin", argv[1]);
+        sprintf_s(aggregate_batch_accuracy_tracking_file_name, 100, "aggregate_batch_accuracy_tracking_files/%s.txt", argv[1]);
     }
 
     srand(time(0));
@@ -134,7 +137,8 @@ int main(int argc, char **argv)
 
         if (DEBUG_SHOULD_SHOW_ACCURACY_ON_GRADIENT_DESCENT_COMPLETION)
         {
-            print_aggregate_batch_accuracy(&node_network, &misc_node_network_data_partition, image_data, BATCH_SIZE, IMAGE_SIZE);
+            float aggregate_batch_accuracy = print_aggregate_batch_accuracy(&node_network, &misc_node_network_data_partition, image_data, BATCH_SIZE, IMAGE_SIZE);
+            save_aggregate_batch_accuracy(aggregate_batch_accuracy_tracking_file_name, cycle_index, aggregate_batch_accuracy);
         }
 
         if (SHOULD_PROMPT_BEFORE_DESCENT_CYCLE)

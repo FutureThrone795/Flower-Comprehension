@@ -30,6 +30,21 @@ const char end_header[] = "End Header";
 
 #define VERSION 3
 
+void save_aggregate_batch_accuracy(const char *file_name, size_t cycle_index, float aggregate_batch_accuracy)
+{
+    FILE *file_pointer;
+    file_pointer = fopen(file_name, "a");
+    
+    if (cycle_index == 0)
+    {
+        fprintf(file_pointer, "Cycle Index\t\tAggregate Batch Accuracy");
+    }
+
+    fprintf(file_pointer, "\n%llu\t\t\t\t%f", cycle_index, aggregate_batch_accuracy);
+
+    fclose(file_pointer);
+}
+
 size_t calculate_node_network_data_float_count(uint8_t node_layer_count, size_t first_node_layer_input_count, size_t *node_layer_output_counts)
 {
     size_t float_count = 0;
