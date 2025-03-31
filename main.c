@@ -33,7 +33,7 @@
 #define DEBUG_SHOULD_SHOW_ACCURACY_ON_GRADIENT_DESCENT_COMPLETION 1
 #define DEBUG_SHOULD_SAVE_NODE_NETWORK_IMAGE 0
 
-#define IMAGE_SAVE_FREQUENCY 50
+#define IMAGE_SAVE_FREQUENCY 25
 #define SHOULD_PROMPT_BEFORE_DESCENT_CYCLE 0
 
 #define NODE_NETWORK_DATA_SAVE_FREQUENCY 1
@@ -114,6 +114,8 @@ int main(int argc, char **argv)
     allocate_node_network_data_partition(&node_network, &misc_node_network_data_partition, 0); //Does not support gradient descent
     initialize_node_network_data_partition(&node_network, &misc_node_network_data_partition);
 
+    float aggregate_batch_accuracy;
+
     for (; cycle_index < MAXIMUM_GRADIENT_DESCENT_CYCLES || MAXIMUM_GRADIENT_DESCENT_CYCLES == -1; cycle_index++)
     {
         for (int image_data_index = 0; image_data_index < BATCH_SIZE; image_data_index++)
@@ -132,14 +134,12 @@ int main(int argc, char **argv)
         }
 
         printf("Gradient descent cycle index %llu started\n", cycle_index);
-        gradient_descent_cycle(&node_network, gradient_descent_derivatives, node_network_data_partition, image_data, BATCH_SIZE);
-        printf("Gradient descent cycle index %llu completed\n", cycle_index);
+        gradient_descent_cycle(&node_network, gradient_descent_derivatives, node_network_data_partition, image_data, BATCH_SIZE, &aggregate_batch_accuracy);
 
-        if (DEBUG_SHOULD_SHOW_ACCURACY_ON_GRADIENT_DESCENT_COMPLETION)
-        {
-            float aggregate_batch_accuracy = print_aggregate_batch_accuracy(&node_network, &misc_node_network_data_partition, image_data, BATCH_SIZE, IMAGE_SIZE);
-            save_aggregate_batch_accuracy(aggregate_batch_accuracy_tracking_file_name, cycle_index, aggregate_batch_accuracy);
-        }
+        print_aggregate_batch_accuracy(aggregate_batch_accuracy);
+        save_aggregate_batch_accuracy(aggregate_batch_accuracy_tracking_file_name, cycle_index, aggregate_batch_accuracy);
+
+        printf("Gradient descent cycle index %llu completed\n", cycle_index);
 
         if (SHOULD_PROMPT_BEFORE_DESCENT_CYCLE)
         {

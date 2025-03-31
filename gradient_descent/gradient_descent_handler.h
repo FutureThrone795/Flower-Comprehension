@@ -19,6 +19,7 @@ void allocate_and_initialize_gradient_descent_values(struct Node_Network *node_n
 struct Gradient_Descent_Master_Handler_Data
 {
     float **target_batch_data;
+    float *aggregate_batch_accuracy;
     unsigned long long batch_size;
     struct Gradient_Descent_Derivatives *master_gradient_descent_derivatives;
     struct Node_Network *node_network;
@@ -36,7 +37,7 @@ struct Gradient_Descent_Worker_Thread_Data
     struct Node_Network_Data_Partition *node_network_data_partition;
 };
 
-void initialize_master_handler_data(struct Gradient_Descent_Master_Handler_Data *gradient_descent_master_handler_data, struct Node_Network *node_network, struct Gradient_Descent_Derivatives *master_gradient_descent_derivatives, float **target_batch_data, unsigned long long batch_size, pthread_mutex_t* master_gradient_descent_derivatives_mutex, pthread_mutex_t* has_computed_batch_index_mutex)
+void initialize_master_handler_data(struct Gradient_Descent_Master_Handler_Data *gradient_descent_master_handler_data, struct Node_Network *node_network, struct Gradient_Descent_Derivatives *master_gradient_descent_derivatives, float **target_batch_data, unsigned long long batch_size, pthread_mutex_t* master_gradient_descent_derivatives_mutex, pthread_mutex_t* has_computed_batch_index_mutex, float *aggregate_batch_accuracy)
 {
     allocate_gradient_descent_derivatives(node_network, master_gradient_descent_derivatives);
     reset_gradient_descent_derivatives(node_network, master_gradient_descent_derivatives);
@@ -45,6 +46,7 @@ void initialize_master_handler_data(struct Gradient_Descent_Master_Handler_Data 
     gradient_descent_master_handler_data->master_gradient_descent_derivatives_mutex = master_gradient_descent_derivatives_mutex;
 
     gradient_descent_master_handler_data->target_batch_data = target_batch_data;
+    gradient_descent_master_handler_data->aggregate_batch_accuracy = aggregate_batch_accuracy;
     gradient_descent_master_handler_data->master_gradient_descent_derivatives = master_gradient_descent_derivatives;
     gradient_descent_master_handler_data->node_network = node_network;
 
@@ -95,6 +97,8 @@ void *gradient_descent_worker_thread(void *thread_arg)
         node_network_data_partition->node_layer_data_partitions[0].inputs = gradient_descent_master_handler_data->target_batch_data[batch_index];
         compute_node_network(node_network, node_network_data_partition);
 
+        (*gradient_descent_master_handler_data->aggregate_batch_accuracy) += calculate_data_difference_squared(node_network_data_partition->node_layer_data_partitions[node_network->node_layer_count - 1].outputs, gradient_descent_master_handler_data->target_batch_data[batch_index], node_network->node_layers[node_network->node_layer_count - 1].output_count) / gradient_descent_master_handler_data->batch_size;
+
         node_network_derivatives(node_network, node_network_data_partition, gradient_descent_derivatives, gradient_descent_master_handler_data->target_batch_data[batch_index]);
 
         pthread_mutex_lock(gradient_descent_master_handler_data->master_gradient_descent_derivatives_mutex);
@@ -114,7 +118,7 @@ void *gradient_descent_worker_thread(void *thread_arg)
 }
 
 
-void gradient_descent_cycle(struct Node_Network *node_network, struct Gradient_Descent_Derivatives *gradient_descent_derivatives, struct Node_Network_Data_Partition *node_network_data_partitions, float **target_batch_data, unsigned long long batch_size)
+void gradient_descent_cycle(struct Node_Network *node_network, struct Gradient_Descent_Derivatives *gradient_descent_derivatives, struct Node_Network_Data_Partition *node_network_data_partitions, float **target_batch_data, unsigned long long batch_size, float *aggregate_batch_accuracy)
 {
     pthread_mutex_t master_gradient_descent_derivatives_mutex;
     pthread_mutex_t has_computed_batch_index_mutex;
@@ -126,7 +130,7 @@ void gradient_descent_cycle(struct Node_Network *node_network, struct Gradient_D
     struct Gradient_Descent_Worker_Thread_Data gradient_descent_worker_thread_data[THREAD_COUNT];
 
     struct Gradient_Descent_Master_Handler_Data gradient_descent_master_handler_data = {0};
-    initialize_master_handler_data(&gradient_descent_master_handler_data, node_network, &master_gradient_descent_derivatives, target_batch_data, batch_size, &master_gradient_descent_derivatives_mutex, &has_computed_batch_index_mutex);
+    initialize_master_handler_data(&gradient_descent_master_handler_data, node_network, &master_gradient_descent_derivatives, target_batch_data, batch_size, &master_gradient_descent_derivatives_mutex, &has_computed_batch_index_mutex, aggregate_batch_accuracy);
 
     for (uint8_t thread_data_index = 0; thread_data_index < THREAD_COUNT; thread_data_index++)
     {
@@ -180,7 +184,6 @@ void gradient_descent_cycle(struct Node_Network *node_network, struct Gradient_D
         add_to_matrix_with_second_term_coefficient(node_layer->activation_biases, master_gradient_descent_derivatives.activation_bias_derivatives[node_layer_index], 1, node_layer->output_count, -1.0f * DESCENT_DERIVATIVE_BIAS_STRENGTH_FACTOR * layer_activation_bias_factor / (float)batch_size);
         add_to_matrix_with_second_term_coefficient(node_layer->input_weights, master_gradient_descent_derivatives.input_weight_derivatives[node_layer_index], node_layer->output_count, node_layer->input_count, -1.0f * DESCENT_DERIVATIVE_WEIGHT_STRENGTH_FACTOR * layer_weights_factor / (float)batch_size);
     }
-    printf("Gradient descent derivatives applied\n");
 
     destroy_master_handler(&gradient_descent_master_handler_data);
 

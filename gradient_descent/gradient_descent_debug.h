@@ -17,10 +17,9 @@ void save_progress_image(float *adjoined_progress_image_data, struct Node_Networ
     printf("Saved Progress Image\n");
 }
 
-float print_aggregate_batch_accuracy(struct Node_Network *node_network, struct Node_Network_Data_Partition *node_network_data_partition, float **image_data, unsigned long long batch_size, unsigned long long image_size)
+void print_aggregate_batch_accuracy(float aggregate_batch_accuracy)
 {
     static float prev_aggregate_batch_accuracy = 0.0;
-    float aggregate_batch_accuracy = calculate_aggregate_batch_data_difference_squared(node_network, node_network_data_partition, image_data, batch_size, image_size);
 
     printf("Gradient Descent Step Completed, Aggregate Batch Accuracy: %f ", aggregate_batch_accuracy);
 
@@ -39,6 +38,4 @@ float print_aggregate_batch_accuracy(struct Node_Network *node_network, struct N
     printf("\n");
 
     prev_aggregate_batch_accuracy = aggregate_batch_accuracy;
-
-    return aggregate_batch_accuracy;
 }
