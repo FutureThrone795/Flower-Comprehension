@@ -117,7 +117,7 @@ int load_node_network_data_from_file(const char *file_name, struct Node_Network 
     unsigned long long *file_node_layer_output_counts = 0;
 
     seek_and_read_file_header_also_allocate_node_layer_input_counts_and_brew_me_coffee(file_pointer, &file_version, cycle_index, &file_node_layer_count, &file_first_node_layer_input_count, &file_node_layer_output_counts);
-    printf("Loaded header data from %s:\nVersion: %llu, Node layer count: %llu\n", file_name, file_version, file_node_layer_count);
+    printf("Loaded header data from %s:\nVersion: %llu, Node layer count: %u\n", file_name, file_version, (unsigned)file_node_layer_count);
 
     if (file_version != VERSION)
     {
