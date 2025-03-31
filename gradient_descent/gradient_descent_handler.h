@@ -46,6 +46,7 @@ void initialize_master_handler_data(struct Gradient_Descent_Master_Handler_Data 
     gradient_descent_master_handler_data->master_gradient_descent_derivatives_mutex = master_gradient_descent_derivatives_mutex;
 
     gradient_descent_master_handler_data->target_batch_data = target_batch_data;
+    *aggregate_batch_accuracy = 0.0f;
     gradient_descent_master_handler_data->aggregate_batch_accuracy = aggregate_batch_accuracy;
     gradient_descent_master_handler_data->master_gradient_descent_derivatives = master_gradient_descent_derivatives;
     gradient_descent_master_handler_data->node_network = node_network;
