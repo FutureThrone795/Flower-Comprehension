@@ -1,8 +1,10 @@
+const uint16_t IMAGE_COUNT = 8186;
+
 void load_random_image(float *image_data_buffer, size_t image_size)
 {
 	int width, height, channels;
 	char image_name[64];
-	sprintf_s(image_name, 64, "cropped_102flowers/cropped_%04i.png", (rand() + rand() ^ rand())%8186);
+	sprintf_s(image_name, 64, "cropped_102flowers/cropped_%04i.png", (rand() + rand() ^ rand()) % IMAGE_COUNT);
 
 	uint8_t *requested_image = stbi_load(image_name, &width, &height, &channels, 0);
     if (requested_image == NULL) 
@@ -17,9 +19,26 @@ void load_random_image(float *image_data_buffer, size_t image_size)
         exit(EXIT_FAILURE);
 	}
 
-	for (size_t image_data_index = 0; image_data_index < image_size; image_data_index++)
+	uint8_t is_flipped = rand() & 1;
+	if (is_flipped)
 	{
-		image_data_buffer[image_data_index] = 2.0f * (float)requested_image[image_data_index] / UINT8_MAX - 1.0f;
+		for (size_t image_row = 0; image_row < height; image_row++)
+		{
+			for (size_t image_column = 0; image_column < width; image_column++)
+			{
+				for (size_t image_channel_index = 0; image_channel_index < channels; image_channel_index++)
+				{
+					image_data_buffer[channels * (image_row * width + image_column) + image_channel_index] = 2.0f * (float)requested_image[channels * (image_row * width + width - 1 - image_column) + image_channel_index] / UINT8_MAX - 1.0f;
+				}
+			}
+		}
+	}
+	else
+	{
+		for (size_t image_data_index = 0; image_data_index < image_size; image_data_index++)
+		{
+			image_data_buffer[image_data_index] = 2.0f * (float)requested_image[image_data_index] / UINT8_MAX - 1.0f;
+		}
 	}
 
 	stbi_image_free(requested_image);

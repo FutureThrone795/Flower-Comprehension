@@ -1,7 +1,7 @@
-#define DESCENT_DERIVATIVE_BIAS_STRENGTH_FACTOR 0.01
-#define DESCENT_DERIVATIVE_WEIGHT_STRENGTH_FACTOR 0.01
+#define DESCENT_DERIVATIVE_BIAS_STRENGTH_FACTOR 0.002
+#define DESCENT_DERIVATIVE_WEIGHT_STRENGTH_FACTOR 0.002
 
-#define SHOULD_DIVIDE_NODE_LAYER_BY_DEPTH 1
+#define SHOULD_DIVIDE_NODE_LAYER_BY_DEPTH 0
 
 void allocate_and_initialize_gradient_descent_values(struct Node_Network *node_network, struct Gradient_Descent_Derivatives **gradient_descent_derivatives, struct Node_Network_Data_Partition **node_network_data_partition)
 {

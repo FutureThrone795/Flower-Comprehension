@@ -22,7 +22,7 @@
 #include "math_utilities/compare_data.h"
 
 #define DEBUG_SHOULD_SHOW_GRADIENT_BATCH_INDEX 1
-#define THREAD_COUNT 16
+#define THREAD_COUNT 64
 
 #include "gradient_descent/node_network_gradient_descent.h"
 #include "gradient_descent/gradient_descent_handler.h"
@@ -33,7 +33,7 @@
 #define DEBUG_SHOULD_SHOW_ACCURACY_ON_GRADIENT_DESCENT_COMPLETION 1
 #define DEBUG_SHOULD_SAVE_NODE_NETWORK_IMAGE 0
 
-#define IMAGE_SAVE_FREQUENCY 5
+#define IMAGE_SAVE_FREQUENCY 50
 #define SHOULD_PROMPT_BEFORE_DESCENT_CYCLE 0
 
 #define NODE_NETWORK_DATA_SAVE_FREQUENCY 1
@@ -47,7 +47,7 @@
 #define MAXIMUM_GRADIENT_DESCENT_CYCLES -1
 //Set to -1 for infinite cycles
 
-#define BATCH_SIZE 25
+#define BATCH_SIZE 64
 #define NODE_LAYER_COUNT 6
 
 int main(int argc, char **argv)
@@ -75,7 +75,7 @@ int main(int argc, char **argv)
     const size_t IMAGE_SIZE = IMAGE_HEIGHT * IMAGE_WIDTH * IMAGE_CHANNELS; 
 
     const size_t FIRST_NODE_LAYER_INPUT_COUNT = IMAGE_SIZE;
-    size_t node_layer_output_count[NODE_LAYER_COUNT] = { 1024, 512, 128, 512, 1024, IMAGE_SIZE };
+    size_t node_layer_output_count[NODE_LAYER_COUNT] = { 1024, 512, 256, 512, 1024, IMAGE_SIZE };
 
     float **image_data = (float **)malloc(sizeof(float *) * BATCH_SIZE);
     for (int image_data_index = 0; image_data_index < BATCH_SIZE; image_data_index++)
