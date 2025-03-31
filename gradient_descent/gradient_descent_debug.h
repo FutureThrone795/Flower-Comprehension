@@ -10,7 +10,7 @@ void save_progress_image(float *adjoined_progress_image_data, struct Node_Networ
         snprintf(name, 64, "node_networks/node_network_image_%i.png", image_data_index);
     }
 
-    sprintf_s(name, 60, "progress/progress_image_%i.png", cycle_index);
+    snprintf(name, 60, "progress/progress_image_%i.png", cycle_index);
     save_image(name, image_width * 2, image_height * batch_size, image_channels, adjoined_progress_image_data);
     save_image("progress_image.png", image_width * 2, image_height * batch_size, image_channels, adjoined_progress_image_data);
 
