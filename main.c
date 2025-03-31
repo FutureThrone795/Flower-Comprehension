@@ -22,7 +22,7 @@
 #include "math_utilities/compare_data.h"
 
 #define DEBUG_SHOULD_SHOW_GRADIENT_BATCH_INDEX 1
-#define THREAD_COUNT 64
+#define THREAD_COUNT 32
 
 #include "gradient_descent/node_network_gradient_descent.h"
 #include "gradient_descent/gradient_descent_handler.h"
@@ -47,7 +47,7 @@
 #define MAXIMUM_GRADIENT_DESCENT_CYCLES -1
 //Set to -1 for infinite cycles
 
-#define BATCH_SIZE 64
+#define BATCH_SIZE 32
 #define NODE_LAYER_COUNT 6
 
 int main(int argc, char **argv)
