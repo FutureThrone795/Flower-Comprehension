@@ -49,13 +49,13 @@ void reset_gradient_descent_derivatives(struct Node_Network *node_network, struc
     {
         struct Node_Layer *node_layer = &(node_network->node_layers[node_layer_index]);
 
-        for (uint64_t output_index = 0; output_index < node_layer->output_count; output_index++)
+        for (unsigned long long output_index = 0; output_index < node_layer->output_count; output_index++)
         {
             gradient_descent_derivatives->activation_bias_derivatives[node_layer_index][output_index] = 0.0f;
 
-            for (uint64_t input_index = 0; input_index < node_layer->input_count; input_index++)
+            for (unsigned long long input_index = 0; input_index < node_layer->input_count; input_index++)
             {
-                uint64_t weight_index = (output_index * node_layer->input_count) + input_index;
+                unsigned long long weight_index = (output_index * node_layer->input_count) + input_index;
 
                 gradient_descent_derivatives->input_weight_derivatives[node_layer_index][weight_index] = 0.0f;
             }
@@ -69,13 +69,13 @@ void multiply_gradient_descent_bias_and_weight_derivatives(struct Node_Network *
     {
         struct Node_Layer *node_layer = &(node_network->node_layers[node_layer_index]);
 
-        for (uint64_t output_index = 0; output_index < node_layer->output_count; output_index++)
+        for (unsigned long long output_index = 0; output_index < node_layer->output_count; output_index++)
         {
             gradient_descent_derivatives->activation_bias_derivatives[node_layer_index][output_index] *= factor;
 
-            for (uint64_t input_index = 0; input_index < node_layer->input_count; input_index++)
+            for (unsigned long long input_index = 0; input_index < node_layer->input_count; input_index++)
             {
-                uint64_t weight_index = (output_index * node_layer->input_count) + input_index;
+                unsigned long long weight_index = (output_index * node_layer->input_count) + input_index;
 
                 gradient_descent_derivatives->input_weight_derivatives[node_layer_index][weight_index] *= factor;
             }

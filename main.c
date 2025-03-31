@@ -68,14 +68,14 @@ int main(int argc, char **argv)
 
     srand(time(0));
 
-    const uint64_t IMAGE_HEIGHT = 150;
-    const uint64_t IMAGE_WIDTH = 150;
-    const uint64_t IMAGE_CHANNELS = 3;
+    const unsigned long long IMAGE_HEIGHT = 150;
+    const unsigned long long IMAGE_WIDTH = 150;
+    const unsigned long long IMAGE_CHANNELS = 3;
 
-    const uint64_t IMAGE_SIZE = IMAGE_HEIGHT * IMAGE_WIDTH * IMAGE_CHANNELS; 
+    const unsigned long long IMAGE_SIZE = IMAGE_HEIGHT * IMAGE_WIDTH * IMAGE_CHANNELS; 
 
-    const uint64_t FIRST_NODE_LAYER_INPUT_COUNT = IMAGE_SIZE;
-    uint64_t node_layer_output_count[NODE_LAYER_COUNT] = { 1024, 512, 256, 512, 1024, IMAGE_SIZE };
+    const unsigned long long FIRST_NODE_LAYER_INPUT_COUNT = IMAGE_SIZE;
+    unsigned long long node_layer_output_count[NODE_LAYER_COUNT] = { 1024, 512, 256, 512, 1024, IMAGE_SIZE };
 
     float **image_data = (float **)malloc(sizeof(float *) * BATCH_SIZE);
     for (int image_data_index = 0; image_data_index < BATCH_SIZE; image_data_index++)
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
     struct Node_Network node_network;
     initialize_node_network(&node_network, *image_data, NODE_LAYER_COUNT, FIRST_NODE_LAYER_INPUT_COUNT, node_layer_output_count);
 
-    uint64_t cycle_index;
+    unsigned long long cycle_index;
     int does_load_from_file_fail = load_node_network_data_from_file(node_network_data_file_name, &node_network, &cycle_index, NODE_LAYER_COUNT, FIRST_NODE_LAYER_INPUT_COUNT, node_layer_output_count);
     if (does_load_from_file_fail)
     {

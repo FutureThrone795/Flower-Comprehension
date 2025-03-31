@@ -180,7 +180,7 @@ STBIWDEF int stbi_write_hdr(char const *filename, int w, int h, int comp, const 
 STBIWDEF int stbi_write_jpg(char const *filename, int x, int y, int comp, const void  *data, int quality);
 
 #ifdef STBIW_WINDOWS_UTF8
-STBIWDEF int stbiw_convert_wchar_to_utf8(char *buffer, uint64_t bufferlen, const wchar_t* input);
+STBIWDEF int stbiw_convert_wchar_to_utf8(char *buffer, unsigned long long bufferlen, const wchar_t* input);
 #endif
 #endif
 
@@ -295,7 +295,7 @@ static void stbi__stdio_write(void *context, void *data, int size)
 STBIW_EXTERN __declspec(dllimport) int __stdcall MultiByteToWideChar(unsigned int cp, unsigned long flags, const char *str, int cbmb, wchar_t *widestr, int cchwide);
 STBIW_EXTERN __declspec(dllimport) int __stdcall WideCharToMultiByte(unsigned int cp, unsigned long flags, const wchar_t *widestr, int cchwide, char *str, int cbmb, const char *defchar, int *used_default);
 
-STBIWDEF int stbiw_convert_wchar_to_utf8(char *buffer, uint64_t bufferlen, const wchar_t* input)
+STBIWDEF int stbiw_convert_wchar_to_utf8(char *buffer, unsigned long long bufferlen, const wchar_t* input)
 {
    return WideCharToMultiByte(65001 /* UTF8 */, 0, input, -1, buffer, (int) bufferlen, NULL, NULL);
 }
@@ -398,7 +398,7 @@ static void stbiw__putc(stbi__write_context *s, unsigned char c)
 
 static void stbiw__write1(stbi__write_context *s, unsigned char a)
 {
-   if ((uint64_t)s->buf_used + 1 > sizeof(s->buffer))
+   if ((unsigned long long)s->buf_used + 1 > sizeof(s->buffer))
       stbiw__write_flush(s);
    s->buffer[s->buf_used++] = a;
 }
@@ -406,7 +406,7 @@ static void stbiw__write1(stbi__write_context *s, unsigned char a)
 static void stbiw__write3(stbi__write_context *s, unsigned char a, unsigned char b, unsigned char c)
 {
    int n;
-   if ((uint64_t)s->buf_used + 3 > sizeof(s->buffer))
+   if ((unsigned long long)s->buf_used + 3 > sizeof(s->buffer))
       stbiw__write_flush(s);
    n = s->buf_used;
    s->buf_used = n+3;

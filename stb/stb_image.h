@@ -434,7 +434,7 @@ STBIDEF stbi_uc *stbi_load_gif_from_memory(stbi_uc const *buffer, int len, int *
 #endif
 
 #ifdef STBI_WINDOWS_UTF8
-STBIDEF int stbi_convert_wchar_to_utf8(char *buffer, uint64_t bufferlen, const wchar_t* input);
+STBIDEF int stbi_convert_wchar_to_utf8(char *buffer, unsigned long long bufferlen, const wchar_t* input);
 #endif
 
 ////////////////////////////////////
@@ -982,7 +982,7 @@ static int stbi__err(const char *str)
 }
 #endif
 
-static void *stbi__malloc(uint64_t size)
+static void *stbi__malloc(unsigned long long size)
 {
     return STBI_MALLOC(size);
 }
@@ -1095,8 +1095,8 @@ static int stbi__mul2shorts_valid(int a, int b)
    #define stbi__err(x,y)  stbi__err(x)
 #endif
 
-#define stbi__errpf(x,y)   ((float *)(uint64_t) (stbi__err(x,y)?NULL:NULL))
-#define stbi__errpuc(x,y)  ((unsigned char *)(uint64_t) (stbi__err(x,y)?NULL:NULL))
+#define stbi__errpf(x,y)   ((float *)(unsigned long long) (stbi__err(x,y)?NULL:NULL))
+#define stbi__errpuc(x,y)  ((unsigned char *)(unsigned long long) (stbi__err(x,y)?NULL:NULL))
 
 STBIDEF void stbi_image_free(void *retval_from_stbi_load)
 {
@@ -1222,7 +1222,7 @@ static stbi__uint16 *stbi__convert_8_to_16(stbi_uc *orig, int w, int h, int chan
 static void stbi__vertical_flip(void *image, int w, int h, int bytes_per_pixel)
 {
    int row;
-   uint64_t bytes_per_row = (uint64_t)w * bytes_per_pixel;
+   unsigned long long bytes_per_row = (unsigned long long)w * bytes_per_pixel;
    stbi_uc temp[2048];
    stbi_uc *bytes = (stbi_uc *)image;
 
@@ -1230,9 +1230,9 @@ static void stbi__vertical_flip(void *image, int w, int h, int bytes_per_pixel)
       stbi_uc *row0 = bytes + row*bytes_per_row;
       stbi_uc *row1 = bytes + (h - row - 1)*bytes_per_row;
       // swap row0 with row1
-      uint64_t bytes_left = bytes_per_row;
+      unsigned long long bytes_left = bytes_per_row;
       while (bytes_left) {
-         uint64_t bytes_copy = (bytes_left < sizeof(temp)) ? bytes_left : sizeof(temp);
+         unsigned long long bytes_copy = (bytes_left < sizeof(temp)) ? bytes_left : sizeof(temp);
          memcpy(temp, row0, bytes_copy);
          memcpy(row0, row1, bytes_copy);
          memcpy(row1, temp, bytes_copy);
@@ -1328,7 +1328,7 @@ STBI_EXTERN __declspec(dllimport) int __stdcall WideCharToMultiByte(unsigned int
 #endif
 
 #if defined(_WIN32) && defined(STBI_WINDOWS_UTF8)
-STBIDEF int stbi_convert_wchar_to_utf8(char *buffer, uint64_t bufferlen, const wchar_t* input)
+STBIDEF int stbi_convert_wchar_to_utf8(char *buffer, unsigned long long bufferlen, const wchar_t* input)
 {
 	return WideCharToMultiByte(65001 /* UTF8 */, 0, input, -1, buffer, (int) bufferlen, NULL, NULL);
 }
@@ -3338,7 +3338,7 @@ static int stbi__process_frame_header(stbi__jpeg *z, int scan)
       if (z->img_comp[i].raw_data == NULL)
          return stbi__free_jpeg_components(z, i+1, stbi__err("outofmem", "Out of memory"));
       // align blocks for idct using mmx/sse
-      z->img_comp[i].data = (stbi_uc*) (((uint64_t) z->img_comp[i].raw_data + 15) & ~15);
+      z->img_comp[i].data = (stbi_uc*) (((unsigned long long) z->img_comp[i].raw_data + 15) & ~15);
       if (z->progressive) {
          // w2, h2 are multiples of 8 (see above)
          z->img_comp[i].coeff_w = z->img_comp[i].w2 / 8;
@@ -3346,7 +3346,7 @@ static int stbi__process_frame_header(stbi__jpeg *z, int scan)
          z->img_comp[i].raw_coeff = stbi__malloc_mad3(z->img_comp[i].w2, z->img_comp[i].h2, sizeof(short), 15);
          if (z->img_comp[i].raw_coeff == NULL)
             return stbi__free_jpeg_components(z, i+1, stbi__err("outofmem", "Out of memory"));
-         z->img_comp[i].coeff = (short*) (((uint64_t) z->img_comp[i].raw_coeff + 15) & ~15);
+         z->img_comp[i].coeff = (short*) (((unsigned long long) z->img_comp[i].raw_coeff + 15) & ~15);
       }
    }
 

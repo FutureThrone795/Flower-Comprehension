@@ -1,6 +1,6 @@
 #include "gradient_descent_derivative.h"
 
-void node_layer_derivatives(struct Node_Network *node_network, struct Node_Network_Data_Partition *node_network_data_partition, struct Gradient_Descent_Derivatives *gradient_descent_derivatives, uint64_t node_layer_index, float* target_output)
+void node_layer_derivatives(struct Node_Network *node_network, struct Node_Network_Data_Partition *node_network_data_partition, struct Gradient_Descent_Derivatives *gradient_descent_derivatives, unsigned long long node_layer_index, float* target_output)
 {
     struct Node_Layer *node_layer = &(node_network->node_layers[node_layer_index]);
     struct Node_Layer_Data_Partition *node_layer_data_partition = &(node_network_data_partition->node_layer_data_partitions[node_layer_index]);
@@ -10,7 +10,7 @@ void node_layer_derivatives(struct Node_Network *node_network, struct Node_Netwo
 
     int is_output_layer = node_layer_index == (node_network->node_layer_count - 1);
 
-    for (uint64_t output_index = 0; output_index < node_layer->output_count; output_index++)
+    for (unsigned long long output_index = 0; output_index < node_layer->output_count; output_index++)
     {
         float current_output_derivative;
         if (node_layer_index == (node_network->node_layer_count - 1))
@@ -22,7 +22,7 @@ void node_layer_derivatives(struct Node_Network *node_network, struct Node_Netwo
             struct Node_Layer *next_node_layer = &(node_network->node_layers[node_layer_index + 1]);
             float total_weight = 0.0f;
 
-            for (uint64_t next_node_layer_output_index = 0; next_node_layer_output_index < next_node_layer->output_count; next_node_layer_output_index++)
+            for (unsigned long long next_node_layer_output_index = 0; next_node_layer_output_index < next_node_layer->output_count; next_node_layer_output_index++)
             {
                 struct Node_Layer_Data_Partition *next_node_layer_data_partition = &(node_network_data_partition->node_layer_data_partitions[node_layer_index + 1]);
                 total_weight += (next_node_layer->input_weights[(next_node_layer_output_index * next_node_layer->input_count) + output_index] * next_node_layer_data_partition->output_derivatives[next_node_layer_output_index] * activation_function_derivative(next_node_layer_data_partition->raw_linear_outputs[next_node_layer_output_index], 0)); //FIX IS_OUTPUT_LAYER
@@ -38,7 +38,7 @@ void node_layer_derivatives(struct Node_Network *node_network, struct Node_Netwo
 
         activation_bias_derivatives[node_layer_index][output_index] = current_activation_bias_derivative;
 
-        for (uint64_t input_index = 0; input_index < node_layer->input_count; input_index++)
+        for (unsigned long long input_index = 0; input_index < node_layer->input_count; input_index++)
         {
             float current_input_weight_derivative;
             current_input_weight_derivative = activation_function_derivative(node_layer_data_partition->raw_linear_outputs[output_index], is_output_layer) * node_layer_data_partition->inputs[input_index] * current_output_derivative;
@@ -58,7 +58,7 @@ void node_network_derivatives(struct Node_Network *node_network, struct Node_Net
 }
 
 /*
-void node_network_gradient_descent(struct Node_Network *node_network, struct Gradient_Descent_Derivatives *gradient_descent_derivatives, float** target_batch_outputs, uint64_t target_batch_count)
+void node_network_gradient_descent(struct Node_Network *node_network, struct Gradient_Descent_Derivatives *gradient_descent_derivatives, float** target_batch_outputs, unsigned long long target_batch_count)
 {   
     reset_gradient_descent_derivatives(node_network, gradient_descent_derivatives);
 

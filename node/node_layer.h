@@ -1,13 +1,13 @@
 struct Node_Layer
 {
-    uint64_t input_count;
-    uint64_t output_count;
+    unsigned long long input_count;
+    unsigned long long output_count;
 
     float *input_weights;
     float *activation_biases;
 };
 
-void initialize_node_layer(struct Node_Layer *node_layer, uint64_t input_count, uint64_t output_count)
+void initialize_node_layer(struct Node_Layer *node_layer, unsigned long long input_count, unsigned long long output_count)
 {
     node_layer->input_count = input_count;
     node_layer->output_count = output_count;
@@ -39,7 +39,7 @@ float symmetric_random_value(float maximum_value)
 
 void propogate_random_node_layer_weights(struct Node_Layer *node_layer, float multiplier)
 {
-    for (uint64_t weight_index = 0; weight_index < node_layer->input_count * node_layer->output_count; weight_index++)
+    for (unsigned long long weight_index = 0; weight_index < node_layer->input_count * node_layer->output_count; weight_index++)
     {
         //node_layer->input_weights[weight_index] = multiplier * symmetric_random_value(1.0) * symmetric_random_value(1.0);
         node_layer->input_weights[weight_index] = multiplier * symmetric_random_value(sqrt(6.0f / (node_layer->input_count + sqrt(node_layer->output_count))));
@@ -48,7 +48,7 @@ void propogate_random_node_layer_weights(struct Node_Layer *node_layer, float mu
 
 void propogate_random_node_layer_biases(struct Node_Layer *node_layer, float multiplier)
 {
-    for (uint64_t bias_index = 0; bias_index < node_layer->output_count; bias_index++)
+    for (unsigned long long bias_index = 0; bias_index < node_layer->output_count; bias_index++)
     {
         node_layer->activation_biases[bias_index] = multiplier * symmetric_random_value(1.0f) * symmetric_random_value(1.0f);
     }

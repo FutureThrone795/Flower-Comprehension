@@ -1,4 +1,4 @@
-void save_progress_image(float *adjoined_progress_image_data, struct Node_Network *node_network, struct Node_Network_Data_Partition *node_network_data_partition, float **image_data, uint8_t batch_size, uint64_t image_width, uint64_t image_height, uint64_t image_channels, uint64_t cycle_index)
+void save_progress_image(float *adjoined_progress_image_data, struct Node_Network *node_network, struct Node_Network_Data_Partition *node_network_data_partition, float **image_data, uint8_t batch_size, unsigned long long image_width, unsigned long long image_height, unsigned long long image_channels, unsigned long long cycle_index)
 {
     char name[64];
 
@@ -17,7 +17,7 @@ void save_progress_image(float *adjoined_progress_image_data, struct Node_Networ
     printf("Saved Progress Image\n");
 }
 
-float print_aggregate_batch_accuracy(struct Node_Network *node_network, struct Node_Network_Data_Partition *node_network_data_partition, float **image_data, uint64_t batch_size, uint64_t image_size)
+float print_aggregate_batch_accuracy(struct Node_Network *node_network, struct Node_Network_Data_Partition *node_network_data_partition, float **image_data, unsigned long long batch_size, unsigned long long image_size)
 {
     static float prev_aggregate_batch_accuracy = 0.0;
     float aggregate_batch_accuracy = calculate_aggregate_batch_data_difference_squared(node_network, node_network_data_partition, image_data, batch_size, image_size);

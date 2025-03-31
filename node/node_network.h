@@ -2,13 +2,13 @@ struct Node_Network
 {
     uint8_t node_layer_count;
 
-    uint64_t first_node_layer_input_count;
-    uint64_t* node_layer_output_counts;
+    unsigned long long first_node_layer_input_count;
+    unsigned long long* node_layer_output_counts;
 
     struct Node_Layer *node_layers;
 };
 
-void initialize_node_network(struct Node_Network *node_network, float* input, uint8_t node_layer_count, uint64_t first_node_layer_input_count, uint64_t* node_layer_output_counts)
+void initialize_node_network(struct Node_Network *node_network, float* input, uint8_t node_layer_count, unsigned long long first_node_layer_input_count, unsigned long long* node_layer_output_counts)
 {
     node_network->node_layer_count = node_layer_count;
     node_network->first_node_layer_input_count = first_node_layer_input_count;
