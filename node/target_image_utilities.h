@@ -6,8 +6,6 @@ void load_random_image(float *image_data_buffer, unsigned long long image_size)
 	char image_name[64];
 	snprintf(image_name, 64, "cropped_102flowers/cropped_%04u.png", (unsigned)(rand() + rand() ^ rand()) % IMAGE_COUNT);
 
-	//PRIu64
-
 	uint8_t *requested_image = stbi_load(image_name, &width, &height, &channels, 0);
     if (requested_image == NULL) 
     {
