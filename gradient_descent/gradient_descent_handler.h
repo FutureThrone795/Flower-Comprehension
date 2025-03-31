@@ -19,7 +19,7 @@ void allocate_and_initialize_gradient_descent_values(struct Node_Network *node_n
 struct Gradient_Descent_Master_Handler_Data
 {
     float **target_batch_data;
-    size_t batch_size;
+    uint64_t batch_size;
     struct Gradient_Descent_Derivatives *master_gradient_descent_derivatives;
     struct Node_Network *node_network;
     uint8_t *has_computed_batch_indexes;
@@ -36,7 +36,7 @@ struct Gradient_Descent_Worker_Thread_Data
     struct Node_Network_Data_Partition *node_network_data_partition;
 };
 
-void initialize_master_handler_data(struct Gradient_Descent_Master_Handler_Data *gradient_descent_master_handler_data, struct Node_Network *node_network, struct Gradient_Descent_Derivatives *master_gradient_descent_derivatives, float **target_batch_data, size_t batch_size, pthread_mutex_t* master_gradient_descent_derivatives_mutex, pthread_mutex_t* has_computed_batch_index_mutex)
+void initialize_master_handler_data(struct Gradient_Descent_Master_Handler_Data *gradient_descent_master_handler_data, struct Node_Network *node_network, struct Gradient_Descent_Derivatives *master_gradient_descent_derivatives, float **target_batch_data, uint64_t batch_size, pthread_mutex_t* master_gradient_descent_derivatives_mutex, pthread_mutex_t* has_computed_batch_index_mutex)
 {
     allocate_gradient_descent_derivatives(node_network, master_gradient_descent_derivatives);
     reset_gradient_descent_derivatives(node_network, master_gradient_descent_derivatives);
@@ -114,7 +114,7 @@ void *gradient_descent_worker_thread(void *thread_arg)
 }
 
 
-void gradient_descent_cycle(struct Node_Network *node_network, struct Gradient_Descent_Derivatives *gradient_descent_derivatives, struct Node_Network_Data_Partition *node_network_data_partitions, float **target_batch_data, size_t batch_size)
+void gradient_descent_cycle(struct Node_Network *node_network, struct Gradient_Descent_Derivatives *gradient_descent_derivatives, struct Node_Network_Data_Partition *node_network_data_partitions, float **target_batch_data, uint64_t batch_size)
 {
     pthread_mutex_t master_gradient_descent_derivatives_mutex;
     pthread_mutex_t has_computed_batch_index_mutex;
@@ -155,13 +155,13 @@ void gradient_descent_cycle(struct Node_Network *node_network, struct Gradient_D
     void *status;
 
     pthread_attr_destroy(&attr);
-    for(size_t thread_index = 0; thread_index < THREAD_COUNT; thread_index++) {
+    for(uint64_t thread_index = 0; thread_index < THREAD_COUNT; thread_index++) {
         return_code = pthread_join(threads[thread_index], &status);
         if (return_code) {
             printf("ERROR; return code from pthread_join() is %d\n", return_code);
             exit(EXIT_FAILURE);
         }
-        //printf("Completed join with thread %ld having a status of %llu\n", thread_index, (size_t)status);
+        //printf("Completed join with thread %ld having a status of %llu\n", thread_index, (uint64_t)status);
     }
 
     for (uint8_t node_layer_index = 0; node_layer_index < node_network->node_layer_count; node_layer_index++)

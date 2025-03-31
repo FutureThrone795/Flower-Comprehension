@@ -1,9 +1,9 @@
 
-float calculate_data_difference_squared(float *data_1, float *data_2, size_t data_size)
+float calculate_data_difference_squared(float *data_1, float *data_2, uint64_t data_size)
 {
 	float data_difference = 0;
 
-	for (size_t data_index = 0; data_index < data_size; data_index++)
+	for (uint64_t data_index = 0; data_index < data_size; data_index++)
 	{
 		data_difference += pow(data_1[data_index] - data_2[data_index], 2.0);
 	}
@@ -11,7 +11,7 @@ float calculate_data_difference_squared(float *data_1, float *data_2, size_t dat
 	return data_difference;
 }
 
-float calculate_aggregate_batch_data_difference_squared(struct Node_Network *node_network, struct Node_Network_Data_Partition *node_network_data_partition, float **batch_data, size_t batch_size, size_t individual_data_size)
+float calculate_aggregate_batch_data_difference_squared(struct Node_Network *node_network, struct Node_Network_Data_Partition *node_network_data_partition, float **batch_data, uint64_t batch_size, uint64_t individual_data_size)
 {
 	float aggregate_batch_accuracy = 0.0f;
 

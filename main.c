@@ -62,20 +62,20 @@ int main(int argc, char **argv)
     }
     else
     {
-        sprintf_s(node_network_data_file_name, 100, "node_network_data_files/%s.bin", argv[1]);
-        sprintf_s(aggregate_batch_accuracy_tracking_file_name, 100, "aggregate_batch_accuracy_tracking_files/%s.txt", argv[1]);
+        snprintf(node_network_data_file_name, 100, "node_network_data_files/%s.bin", argv[1]);
+        snprintf(aggregate_batch_accuracy_tracking_file_name, 100, "aggregate_batch_accuracy_tracking_files/%s.txt", argv[1]);
     }
 
     srand(time(0));
 
-    const size_t IMAGE_HEIGHT = 150;
-    const size_t IMAGE_WIDTH = 150;
-    const size_t IMAGE_CHANNELS = 3;
+    const uint64_t IMAGE_HEIGHT = 150;
+    const uint64_t IMAGE_WIDTH = 150;
+    const uint64_t IMAGE_CHANNELS = 3;
 
-    const size_t IMAGE_SIZE = IMAGE_HEIGHT * IMAGE_WIDTH * IMAGE_CHANNELS; 
+    const uint64_t IMAGE_SIZE = IMAGE_HEIGHT * IMAGE_WIDTH * IMAGE_CHANNELS; 
 
-    const size_t FIRST_NODE_LAYER_INPUT_COUNT = IMAGE_SIZE;
-    size_t node_layer_output_count[NODE_LAYER_COUNT] = { 1024, 512, 256, 512, 1024, IMAGE_SIZE };
+    const uint64_t FIRST_NODE_LAYER_INPUT_COUNT = IMAGE_SIZE;
+    uint64_t node_layer_output_count[NODE_LAYER_COUNT] = { 1024, 512, 256, 512, 1024, IMAGE_SIZE };
 
     float **image_data = (float **)malloc(sizeof(float *) * BATCH_SIZE);
     for (int image_data_index = 0; image_data_index < BATCH_SIZE; image_data_index++)
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
     struct Node_Network node_network;
     initialize_node_network(&node_network, *image_data, NODE_LAYER_COUNT, FIRST_NODE_LAYER_INPUT_COUNT, node_layer_output_count);
 
-    size_t cycle_index;
+    uint64_t cycle_index;
     int does_load_from_file_fail = load_node_network_data_from_file(node_network_data_file_name, &node_network, &cycle_index, NODE_LAYER_COUNT, FIRST_NODE_LAYER_INPUT_COUNT, node_layer_output_count);
     if (does_load_from_file_fail)
     {

@@ -31,7 +31,7 @@ void initialize_node_network_data_partition(struct Node_Network *node_network, s
     }
 }
 
-void allocate_node_layer_data_partition(struct Node_Layer_Data_Partition *node_layer_data_partition, size_t output_count, uint8_t should_allocate_for_gradient_descent)
+void allocate_node_layer_data_partition(struct Node_Layer_Data_Partition *node_layer_data_partition, uint64_t output_count, uint8_t should_allocate_for_gradient_descent)
 {
     node_layer_data_partition->is_allocated_for_gradient_descent = should_allocate_for_gradient_descent;
 
