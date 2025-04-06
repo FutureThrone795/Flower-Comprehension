@@ -1,4 +1,4 @@
-void save_progress_image(float *adjoined_progress_image_data, struct Node_Network *node_network, struct Node_Network_Data_Partition *node_network_data_partition, float **image_data, uint8_t batch_size, unsigned long long image_width, unsigned long long image_height, unsigned long long image_channels, unsigned long long cycle_index)
+void save_progress_image(float *adjoined_progress_image_data, struct Node_Network *node_network, struct Node_Network_Data_Partition *node_network_data_partition, float **image_data, unsigned long long batch_size, unsigned long long image_width, unsigned long long image_height, unsigned long long image_channels, unsigned long long cycle_index)
 {
     char name[64];
 
