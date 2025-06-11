@@ -21,7 +21,7 @@
 
 #include "math_utilities/compare_data.h"
 
-#define DEBUG_SHOULD_SHOW_GRADIENT_BATCH_INDEX 1
+#define DEBUG_SHOULD_SHOW_GRADIENT_BATCH_INDEX 0
 #define THREAD_COUNT 128
 
 #include "gradient_descent/node_network_gradient_descent.h"
@@ -33,10 +33,12 @@
 #define DEBUG_SHOULD_SHOW_ACCURACY_ON_GRADIENT_DESCENT_COMPLETION 1
 #define DEBUG_SHOULD_SAVE_NODE_NETWORK_IMAGE 0
 
-#define IMAGE_SAVE_FREQUENCY 25
+#define DESCENT_CYCLE_COMPLETION_PRINT_FREQUENCY 50
+
+#define IMAGE_SAVE_FREQUENCY 0
 #define SHOULD_PROMPT_BEFORE_DESCENT_CYCLE 0
 
-#define NODE_NETWORK_DATA_SAVE_FREQUENCY 1
+#define NODE_NETWORK_DATA_SAVE_FREQUENCY 50
 
 #ifndef _WIN32
     #if SHOULD_PROMPT_BEFORE_DESCENT_CYCLE != 0
@@ -123,7 +125,7 @@ int main(int argc, char **argv)
             load_random_image(image_data[image_data_index], IMAGE_SIZE);
         }
 
-        if (cycle_index % IMAGE_SAVE_FREQUENCY == 0)
+        if (IMAGE_SAVE_FREQUENCY != 0 && cycle_index % IMAGE_SAVE_FREQUENCY == 0)
         {
             save_progress_image(adjoined_progress_image_data, &node_network, &misc_node_network_data_partition, image_data, BATCH_SIZE, IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS, cycle_index);
         }
@@ -133,18 +135,19 @@ int main(int argc, char **argv)
             save_node_network_data_to_file(node_network_data_file_name, &node_network, cycle_index, NODE_LAYER_COUNT, FIRST_NODE_LAYER_INPUT_COUNT, node_layer_output_count);
         }
 
-        printf("Gradient descent cycle index %llu started\n", cycle_index);
         gradient_descent_cycle(&node_network, gradient_descent_derivatives, node_network_data_partition, image_data, BATCH_SIZE, &aggregate_batch_accuracy);
 
         print_aggregate_batch_accuracy(aggregate_batch_accuracy);
         save_aggregate_batch_accuracy(aggregate_batch_accuracy_tracking_file_name, cycle_index, aggregate_batch_accuracy);
 
-        printf("Gradient descent cycle index %llu completed\n", cycle_index);
-
-        if (SHOULD_PROMPT_BEFORE_DESCENT_CYCLE)
+        if (cycle_index % DESCENT_CYCLE_COMPLETION_PRINT_FREQUENCY == 0)
         {
-            system("pause");
+            printf("Gradient descent cycle index %llu completed\n", cycle_index);
         }
+
+        #ifdef SHOULD_PROMPT_BEFORE_DESCENT_CYCLE
+            system("pause");
+        #endif
     }
 
     deallocate_gradient_descent_derivatives(&node_network, gradient_descent_derivatives);

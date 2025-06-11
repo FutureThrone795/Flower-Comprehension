@@ -1,5 +1,5 @@
-#define DESCENT_DERIVATIVE_BIAS_STRENGTH_FACTOR 0.04
-#define DESCENT_DERIVATIVE_WEIGHT_STRENGTH_FACTOR 0.04
+#define DESCENT_DERIVATIVE_BIAS_STRENGTH_FACTOR 0.2
+#define DESCENT_DERIVATIVE_WEIGHT_STRENGTH_FACTOR 0.2
 
 #define SHOULD_DIVIDE_NODE_LAYER_BY_DEPTH 1
 
@@ -82,8 +82,6 @@ void *gradient_descent_worker_thread(void *thread_arg)
 
     uint8_t thread_index = gradient_descent_worker_thread_data->thread_index;
 
-    //printf("Init %llu\n", thread_index);
-
     for(uint8_t batch_index = 0; batch_index < gradient_descent_master_handler_data->batch_size; batch_index++)
     {
         pthread_mutex_lock(gradient_descent_master_handler_data->has_computed_batch_index_mutex);
@@ -110,8 +108,6 @@ void *gradient_descent_worker_thread(void *thread_arg)
             add_to_matrix_with_second_term_coefficient(master_gradient_descent_derivatives->input_weight_derivatives[node_layer_index], gradient_descent_derivatives->input_weight_derivatives[node_layer_index], node_layer->output_count, node_layer->input_count, 1.0f);
         }
         pthread_mutex_unlock(gradient_descent_master_handler_data->master_gradient_descent_derivatives_mutex);
-
-        //printf("Gradient descent batch index %i completed by worker thread %i\n", batch_index, thread_index);
     }
 
     pthread_exit(NULL);
@@ -166,7 +162,6 @@ void gradient_descent_cycle(struct Node_Network *node_network, struct Gradient_D
             printf("ERROR; return code from pthread_join() is %d\n", return_code);
             exit(EXIT_FAILURE);
         }
-        //printf("Completed join with thread %ld having a status of %llu\n", thread_index, (unsigned long long)status);
     }
 
     for (uint8_t node_layer_index = 0; node_layer_index < node_network->node_layer_count; node_layer_index++)
