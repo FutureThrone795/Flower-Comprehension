@@ -37,7 +37,7 @@
 
 #define DESCENT_CYCLE_COMPLETION_PRINT_FREQUENCY 25
 
-#define IMAGE_SAVE_FREQUENCY 0
+#define IMAGE_SAVE_FREQUENCY 25
 #define SHOULD_PROMPT_BEFORE_DESCENT_CYCLE 0
 
 #define NODE_NETWORK_DATA_SAVE_FREQUENCY 25
@@ -129,7 +129,7 @@ int main(int argc, char **argv)
 
         if (IMAGE_SAVE_FREQUENCY != 0 && cycle_index % IMAGE_SAVE_FREQUENCY == 0)
         {
-            save_progress_image(adjoined_progress_image_data, &node_network, &misc_node_network_data_partition, image_data, BATCH_SIZE, IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS, cycle_index);
+            save_progress_image(0, adjoined_progress_image_data, &node_network, &misc_node_network_data_partition, image_data, BATCH_SIZE, IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS, cycle_index);
         }
 
         if (cycle_index % NODE_NETWORK_DATA_SAVE_FREQUENCY == 0)
