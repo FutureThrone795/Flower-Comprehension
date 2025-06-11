@@ -35,12 +35,12 @@
 
 #define SHOULD_PRINT_AGGREGATE_BATCH_ACCURACY 0
 
-#define DESCENT_CYCLE_COMPLETION_PRINT_FREQUENCY 50
+#define DESCENT_CYCLE_COMPLETION_PRINT_FREQUENCY 25
 
 #define IMAGE_SAVE_FREQUENCY 0
 #define SHOULD_PROMPT_BEFORE_DESCENT_CYCLE 0
 
-#define NODE_NETWORK_DATA_SAVE_FREQUENCY 50
+#define NODE_NETWORK_DATA_SAVE_FREQUENCY 25
 
 #ifndef _WIN32
     #if SHOULD_PROMPT_BEFORE_DESCENT_CYCLE != 0
@@ -143,7 +143,6 @@ int main(int argc, char **argv)
         {
             print_aggregate_batch_accuracy(aggregate_batch_accuracy);
         }
-
 
         save_aggregate_batch_accuracy(aggregate_batch_accuracy_tracking_file_name, cycle_index, aggregate_batch_accuracy);
 
