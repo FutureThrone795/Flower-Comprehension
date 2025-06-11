@@ -145,9 +145,10 @@ int main(int argc, char **argv)
             printf("Gradient descent cycle index %llu completed\n", cycle_index);
         }
 
-        #ifdef SHOULD_PROMPT_BEFORE_DESCENT_CYCLE
+        if (SHOULD_PROMPT_BEFORE_DESCENT_CYCLE)
+        {
             system("pause");
-        #endif
+        }
     }
 
     deallocate_gradient_descent_derivatives(&node_network, gradient_descent_derivatives);
