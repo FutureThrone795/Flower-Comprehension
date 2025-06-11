@@ -33,6 +33,8 @@
 #define DEBUG_SHOULD_SHOW_ACCURACY_ON_GRADIENT_DESCENT_COMPLETION 1
 #define DEBUG_SHOULD_SAVE_NODE_NETWORK_IMAGE 0
 
+#define SHOULD_PRINT_AGGREGATE_BATCH_ACCURACY 0
+
 #define DESCENT_CYCLE_COMPLETION_PRINT_FREQUENCY 50
 
 #define IMAGE_SAVE_FREQUENCY 0
@@ -137,7 +139,12 @@ int main(int argc, char **argv)
 
         gradient_descent_cycle(&node_network, gradient_descent_derivatives, node_network_data_partition, image_data, BATCH_SIZE, &aggregate_batch_accuracy);
 
-        print_aggregate_batch_accuracy(aggregate_batch_accuracy);
+        if (SHOULD_PRINT_AGGREGATE_BATCH_ACCURACY)
+        {
+            print_aggregate_batch_accuracy(aggregate_batch_accuracy);
+        }
+
+
         save_aggregate_batch_accuracy(aggregate_batch_accuracy_tracking_file_name, cycle_index, aggregate_batch_accuracy);
 
         if (cycle_index % DESCENT_CYCLE_COMPLETION_PRINT_FREQUENCY == 0)
